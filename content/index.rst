@@ -1,27 +1,56 @@
-LESSON NAME
-===========
+Performance Programming
+=======================
 
-Intro
+In this lesson, you will learn to write efficient programs. Or at least get a first impulse; only by applying these
+techniqes in your own code you will truly understand them. It is also not just a set of techniques, but a mind set
+that you will acquire by using it.
 
+We will deal with efficiency on several different levels:
 
+- Algorithm: What are the basic steps your program performs and how are the data structures organized?
+- Compiler: What can the compiler do for you, and how can you help it?
+- Hardware: How does a modern processor work, and how can you adapt your program to it?
+- Performance analysis: Does your program run in the way you intended?
+
+We will address these questions in a language and architecture agnostic way as far as possible, with code
+examples in C (and Fortran, when I have brushed up a bit). Our main architectural example will be the x86
+and its implementations.
 
 .. prereq::
 
-   prerequisites
+   Before attending this workshop, please make sure that you have access
+   to a computer with a C or Fortran compiler installed. Linux would be the
+   preferred operating system, but at least the algorithm part should be 
+   reasonably OS independent. Performance measurement works best when not run
+   on a virtual machine; a dedicated machine like an ordinary laptop works
+   just fine.
 
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   
+   setup
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: The lesson
+
+   algorithms
+   compilers
+   architecture
+   performance-analysis
 
 
 .. csv-table::
    :widths: auto
    :delim: ;
 
-   20 min ; :doc:`filename`
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: The lesson
-
+   20 min ; :doc:`algorithms`
+   10 min ; :doc:`compilers`
+   20 min ; :doc:`architecture`
+   20 min ; :doc:`performance-analysis`
 
 .. toctree::
    :maxdepth: 1
@@ -37,21 +66,33 @@ Intro
 Who is the course for?
 ----------------------
 
+This lesson material is targeted towards students, researchers, engineers, and
+developers who write programs that they would like to run faster. The focus of the
+course is on mid level languages like C, C++, Fortran and so on, but most of the
+issues discussed are relevant for assebly code, and at least the algorithm part can
+be useful for code written in high level languages such as Julia and Haskell.
 
-
+The course assumes familiarity with C or Fortran syntax which is used for the code
+examples, but no knowledge of computer architecture or complexity theory is needed.
 
 
 About the course
 ----------------
 
-
-
-
+This lesson material is developed by the `EuroCC National Competence
+Center Sweden (ENCCS) <https://enccs.se/>`_ and taught in ENCCS
+workshops. Each lesson episode has clearly defined learning
+objectives and includes multiple exercises along with solutions, and
+is therefore also useful for self-learning.
+The lesson material is licensed under `CC-BY-4.0
+<https://creativecommons.org/licenses/by/4.0/>`_ and can be reused in any form
+(with appropriate credit) in other courses and workshops.
+Instructors who wish to teach this lesson can refer to the :doc:`guide` for
+practical advice.
 
 
 See also
 --------
-
 
 
 
