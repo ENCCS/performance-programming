@@ -41,6 +41,7 @@ and its implementations.
    compilers
    architecture
    performance-analysis
+   tuning
 
 
 .. csv-table::
@@ -51,6 +52,7 @@ and its implementations.
    10 min ; :doc:`compilers`
    20 min ; :doc:`architecture`
    20 min ; :doc:`performance-analysis`
+   10 hrs ; :doc:`tuning`
 
 .. toctree::
    :maxdepth: 1
