@@ -3,3 +3,16 @@
 /venv*
 .jupyter_cache
 jupyter_execute
+
+# 忽略 _build 文件夹及其下的所有内容
+/_build/
+
+# 忽略 run.sh 文件
+/run.sh
+
+# 忽略 build 文件夹及其下的所有内容
+/build/
+
+# 忽略 docs 文件夹及其下的所有内容
+/docs/
+
