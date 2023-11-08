@@ -652,7 +652,9 @@ vector length) is a function that rounds its argument to the next multiple of 4:
    :language: C
    :linenos:
 
-Note that we only use the rounded size for the index computations.
+Note that we only use the rounded size for the index computations, not for the
+loop bounds.
+For this code to work correctly, the caller must also use the same padding.
 
 .. exercise::
 
@@ -687,16 +689,20 @@ Note that we only use the rounded size for the index computations.
    management) that scales as :math:`n^2` or better while the work in the innermost
    loop scales as :math:`n^3`.
    
-   On the other hand, all reuse distances increase when ``n`` grows so we get
+   On the other hand, all reuse distances increase when the matrix size
+   grows so we get
    worse locality and more cache misses. The effect is noticable but not dramatic;
    the L3 bandwidth is
    sufficient to feed the execution unit while the hardware prefetch mitigates the
    latency problems.
    
-   With the innermost loop execution a vector ``fma`` of length 4 per cycle and
-   cycles per ``fma`` down to some 0.54 for ``n == 150``, we see that we execute
-   each inner loop iteration in just above two cycles. Given that we have six
-   instructions in the loop, we run at almost three instructions per cycle.
+   .. With the innermost loop execution a vector ``fma`` of length 4 per cycle and
+      cycles per ``fma`` down to some 0.54 for ``n == 150``, we see that we execute
+      each inner loop iteration in just above two cycles. Given that we have six
+      instructions in the loop, we run at almost three instructions per cycle.
+   
+   Using ``perf stat`` we can see that we have a bit over three instructions per
+   cycle for size 100 (fits in L2) and around 2.5 for size 200 (fits in L3).
 
 We are now a factor of four to five above the ideal performance and we execute
 at about three instructions per cycle out of the theoretical maximum of four, so
@@ -706,6 +712,147 @@ The innermost loop (in the example above) contains one vector ``fma`` instructio
 two data movements instructions and three housekeeping instructions (pointer update,
 loop control). We need to get more arithmetic compared to the rest of the 
 operations.
+
+There are two potential ways to accomplish this:
+
+- Loop unrolling would decrease the house keeping fraction.
+
+- Register blocking would increase the compute fraction.
+
+Out of these two, we will do the register blocking since we can not perform loop
+unrolling as a source level transformation as it would interfere with the
+autovectorization done by the compiler.
+
+Register blocking looks at the memory references in the innermost loop and attempt to
+amortize these over more computation. We get the additional computation by executing
+multiple iterations of the enclosing loops at once. Here is the
+new version of the code:
+
+.. literalinclude:: ex-mm-block.c
+   :linenos:
+   :language: C
+
+There is quite a lot to unpack here:
+
+- Looking at the innermost loop, lines 19-32,
+  we see eight ``+=`` operators, working on scalar
+  variables rather than directly at the ``a`` matrix. There are two partial sum
+  variables, ``s0`` and ``s1``, each used four times.
+
+- In the innermost loop, we see that ``k``, ``k+1``, ``k+2``, and ``k+3`` are
+  used and the ``k`` loop (line 9) uses an increment of 4.
+
+- The reads and writes to the ``a`` matrix use both
+  ``i`` and ``i+1`` in the index expressions, and the
+  ``i`` loop (line 7) has an increment of 2.
+
+- Putting the last two observations together, we have blocked with respect to the
+  ``i`` and ``k`` loops with blocking factors of 2 and 4, respectively, which also
+  tallies with the eight (:math:`2 \times 4`) ``+=`` operators in the innermost loop.
+
+- Tke ``k`` loop (line 9) only iterates if
+  ``k < n-3`` in order not to overshoot if
+  ``n`` is not a multiple of four. The remaining 0-3 iterations are performed
+  in lines 34-40.
+
+- There is no corresponding provision for odd values of ``n`` in the 
+  ``i`` loop (line 7), so this version of the code only works for even matrix
+  sizes (including those not a multiple of four).
+
+- There are two OpenMP pragmas (lines 18 and 35). These instruct the compiler
+  to SIMD-vectorize the code. Unfortunately, the blocked inner loop is too big
+  for ``gcc`` to do the SIMD vectorization without this explicit request.
+
+The strategy behind the block selection (2 in the ``i`` direction and 4 in
+the ``k`` direction) is that each direction saves work in the memory accesses
+that do not depend on that loop variable. There are two accesses to the ``a``
+matrix (a read and a write) so we bring the number of accesses from two per ``fma``
+to one half per ``fma``.
+
+As for the ``c[k*rn + j]`` access from the non blocked version, it is independent of
+``i`` so the same matric element will be reused for different values of that variable.
+In the original, there is one read per ``fma`` operation, so the blocking factor of
+2 for ``i`` gives us one half read for each
+``fma``. Exchanging the blocking factors would give us one reference to
+``a`` and a quarter of a reference to
+``c`` for every compute instruction which is clearly worse.
+
+We can verify this analysis by referring to the innermost loop in lines 19-32 and
+counting 
+
+  ``... += ... * ...`` 
+
+statements and unique memory references (the 
+compiler deals with multiple copies of the same expression). 
+
+- Two reads of ``a``: ``a[i*rn + j]``, ``a[(i+1)*rn + j]``
+
+- Four reads of ``c``: ``c[k*rn + j]``, ``c[(k+1)*rn + j]``, ``c[(k+2)*rn + j]``,
+  ``c[(k+3)*rn + j]``
+
+- Two writes to ``a``: ``a[i*rn + j]``, ``a[(i+1)*rn + j]``
+
+Thus we are now at one memory access per ``fma`` operation rather than three as
+in the original code.
+
+What stops us from improving the ratio between compute and memory reference even
+further by choosing even larger blocking factors? The most concrete limiting factor
+is the additional number of registers that would be needed for the ``bik`` 
+variables. These depend on both ``i`` and ``k`` but are independent of
+``j`` which is why they are loop invariant. There are 16 vector registers in the
+architecture and we need a few for common subexpressions or similar. So 4 by 4
+or larger would lead to some of the ``bik`` being spilled to memory by the compiler.
+
+.. admonition:: Example
+
+   Let us look at what the generated code looks like for the inner loop:
+   
+   .. code-block:: bash
+   
+      gcc -O3 -march=native -S -o mmDb.s -fopenmp -DRTVL ex-mm-block.c
+   
+   Here is the inner loop:
+   
+   .. code-block:: asm
+      :linenos:
+
+      .L5:
+              vmovupd (%rcx,%rax), %ymm1                ; Read from c
+              vmovapd %ymm10, %ymm0                     ; ymm0 will be overwritten
+              vfmadd213pd     (%r15,%rax), %ymm1, %ymm0 ; fma, a[...] is first operand
+              vfmadd213pd     (%r14,%rax), %ymm9, %ymm1 ; fma, a[...] is first operand
+              vmovupd (%r10,%rax), %ymm2                ; Read from c
+              vfmadd231pd     %ymm2, %ymm8, %ymm0       ; fma
+              vfmadd231pd     %ymm2, %ymm7, %ymm1       ; fma
+              vmovupd (%rdx,%rax), %ymm2                ; Read from c
+              vfmadd231pd     %ymm2, %ymm6, %ymm0       ; fma
+              vfmadd132pd     %ymm5, %ymm1, %ymm2       ; fma (partial sum written to ymm2)
+              vmovupd (%rsi,%rax), %ymm1                ; Read from c
+              vfmadd231pd     %ymm1, %ymm4, %ymm0       ; fma
+              vfmadd132pd     %ymm3, %ymm2, %ymm1       ; fma
+              vmovupd %ymm0, (%r15,%rax)                ; Write to a
+              vmovupd %ymm1, (%r14,%rax)                ; Write to a
+              addq    $32, %rax                         ; Increment offset
+              cmpq    %rax, %rbx                        ; Are we done?
+              jne     .L5                               ; Loop back
+
+   This is about as good code as you can expect. There are eight ``fma`` instructions
+   and eight memory references, two of which are combined with the compute operatons.
+   There are three different variants of the ``fma`` instruction used. They differ
+   in which instruction operand plays what role in the computation. The reason for
+   the different variants is that there are two operands that are special:
+   
+   - The first operand can be read from memory.
+   
+   - The third operand will be both read and written (since the instruction format
+     does not accomodate four operands).
+   
+   Note also that the memory references use different base registers together with 
+   a common offset in ``rax``.
+   
+   In total, there are 18 instructions in the loop body. With an ideal execution
+   rate of four instructions per cycle, this amounts to 4.5 cycles for 8 vector 
+   ``fma`` operations or a 0.14 cycles per scalar ``fma``.
 
 .. exercise::
 
@@ -725,6 +872,19 @@ operations.
    .. image:: mm4-cpi.png
       :align: center
    
+   We see a huge improvement in performance, in fact almost a factor of three
+   for size 100 where we reach about 0.2 cycles per ``fma``. For larger matrix
+   sizes we see a small slowdown until about 250 with similar perfromance out
+   to 600. For that size range, the working set of the algorithm fits in the L3
+   cache.
+   
+   We see that we are still quite a bit from the ideal performance of 0.125 cycles
+   per scalar ``fma`` or the ideal inner loop performance of 0.14 cycles per
+   scalar ``fma``.
+
+For the larger matrix sizes, we loose some time to cache misses, so it seems
+worthwhile to try blocking for the cache as well.
+
 .. exercise::
 
    Explore the performance effect of cache and register blocking!
@@ -732,7 +892,7 @@ operations.
    
    .. code-block:: bash
    
-      gcc -O3 -march=native -fopenmp -DRTVL -o mmDa ex-mm-autoblock.c ex-mm-main.c -lm
+      gcc -O3 -march=native -fopenmp -DRTVL -o mmDbb ex-mm-bigblock.c ex-mm-main.c -lm
    
    Do we get any performance difference?
 
@@ -742,5 +902,6 @@ operations.
 
    .. image:: mm5-cpi.png
       :align: center
-   
+
+.. Can we do even better? We have a
 
