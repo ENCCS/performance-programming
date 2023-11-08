@@ -1,5 +1,5 @@
-Setting up your system
-======================
+Setup
+-----
 
 In order to follow this workshop, you will need personal computer for the exercises.
 This means that you should access to C and Fortran compilers in your computer.
@@ -56,3 +56,4 @@ There are three options to install GCC compilers in your windows computer.
 - 3. You can install **MobaXterm**, which provides a good Linux shell for the Windows operating system.
   After the installation, follow steps at `HERE <https://mobaxterm.mobatek.net/plugins.html>`_
   to download plugins and put them in the same directory that MobaXterm executable.
+
