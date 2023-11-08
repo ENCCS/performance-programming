@@ -13,9 +13,13 @@ It is distributed under the GNU General Public License.
 
 The detailed installation procedures in Linux OS, MacOS and Windows OS are listed below.
 
+Note that it is unlikely that the ``perf`` utility which is used in the course will
+work correctly under Windows. In that case, you can always use ``time`` to measure
+execution time, but it will not give data collected by the hardware performance counters.
+
 
 For Linux users
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 Both C and Fortran compilers are usually installed in Linux and Unix OS.
 Just in case there is neither C nor Fortran compilers in your computer,
