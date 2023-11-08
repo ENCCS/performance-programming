@@ -27,16 +27,12 @@ For Mac users
 
 `HERE <https://fastbitlab.com/microcontroller-embedded-c-lecture-10-installing-compiler-gcc-for-host-mac/>`_
 in the guide to install GCC compiler using Homebrew.
-
 - Install Homebrew
     - Open the **terminal** on your mac computer
-    - Copy and paste the following command to the **terminal** app, and then press enter/return key
-
-    .. code-block:: console
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    - Copy/paste and run the command at the **terminal**
+    ```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"```
 
     - Wait for the command to finish. If you are prompted to enter a password, please type your mac user's login password.
-
     - Copy/paste and run the command to make brew command available inside the **terminal**
     ```
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
@@ -44,10 +40,8 @@ in the guide to install GCC compiler using Homebrew.
 - After Homebrew installs, type ``brew install gcc`` in the **terminal**
 
 - Once the installation completes, you can check the installed compilers via the commands
-
-    .. code-block:: console
-        gcc --version
-        which gfortran
+    - ``gcc --version``
+    - ``which gfortran``
 
 
 For Windows users
