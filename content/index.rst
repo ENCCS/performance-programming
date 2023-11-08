@@ -40,7 +40,6 @@ and its implementations.
    algorithms
    compilers
    architecture
-   performance-analysis
    tuning
 
 
@@ -51,7 +50,6 @@ and its implementations.
    20 min ; :doc:`algorithms`
    10 min ; :doc:`compilers`
    20 min ; :doc:`architecture`
-   20 min ; :doc:`performance-analysis`
    10 hrs ; :doc:`tuning`
 
 .. toctree::
