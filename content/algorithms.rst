@@ -18,6 +18,8 @@ the size of the input. Since the actual running time varies between systems, the
 in this context is the number of steps that an idealized (model of a) computer called a Random Access Machine,
 or *RAM*, would need. Input sizes are measured in different ways for different algorithms.
 
+.. admonition:: Example
+
   For a naive
   simulation of gravitational attraction between a large number of stars, the size of the problem is typically
   the number of stars. Since every star is attracted by every other star, the work for a single time
@@ -99,7 +101,7 @@ such that :math:`cn > n\log(n)` for large :math:`n`.
 Is there a way to solve this problem even faster? There is at least one variation that is likely to be faster in many
 cases, and that involves using a *hash table*. This is a data structure that can be used to implement a set with fast
 insert, delete, and membership test (in general, a hash table can implement a finite map from a set of *keys* to a set of
-arbitrary values).
+arbitrary values). If the keys are small enough integers, we do not need a hash table and can just use an array. 
 
 The new version iterates over the integers in the array one by one, looks up each one in the hash table and inserts it if
 it was not there.
@@ -116,13 +118,43 @@ it was not there.
     return 1;
   }
     
-A hash table is implemented as an array that is indexed using a hash value computed from the object we want to
-insert or check membership for. The hash value must be a valid index into the table, so if the size of the table is
+A hash table is implemented as an array that is indexed using a value computed from the key using a *hash function*.
+The hash value must be a valid index into the table, so if the size of the table is
 :math:`s` then the hash value :math:`v` must satisfy :math:`0 \leq v < s`.
 
-In general, we compute a hash value in two steps. First we compute an integer :math:`k` from the
-object we want to insert. In this example, we already have an integer, so this this
-step becomes trivial. Second, we limit the size by for instance taking the modulus
-with respect to the table size :math:`s` of :math:`k` to get a valid index.
+Each entry in the hash table collects those keys that are mapped to that entry's index by the hash function.
+When checking if a particular key *k* is present, all of the keys in the hash table entry must be compared
+to *k*. Clearly, performance will be best if each table entry contains at most one key. In that case, there will only
+be one comparison computed for each access.
 
+Whether a particular hash function is good or not depends on the distribution of keys that we want to keep in the
+hash table at the same time, which is application dependent.
 
+.. In general, we compute a hash value in two steps. First we compute an integer :math:`k` from the
+   object we want to insert. In this example, we already have an integer, so this this
+   step becomes trivial. Second, we limit the size by for instance taking the modulus
+   with respect to the table size :math:`s` of :math:`k` to get a valid index.
+
+.. admonition:: Uses of hash tables
+
+   Hash tables are useful in several high performance computing domains:
+
+   Genomic Data Processing
+     In bioinformatics, hash tables are often used to store and quickly retrieve genomic data. For example, 
+     they can be used to store k-mers (subsequences of length k) in DNA sequence analysis or genome assembly tasks.
+
+   Graph Analytics
+     In graph analytics, hash tables can be used to represent sparse adjacency matrices or edge lists, allowing 
+     for efficient access and manipulation of graph data.
+
+   Particle Simulations
+     In particle simulations (like molecular dynamics), hash tables can be used to efficiently keep track of
+     particles in a given spatial region. This is particularly useful when particles only interact with very
+     nearby particles. Then space can be divided into a grid of cells. If most cells are empty, a hash table
+     where the key is the cell coordinates can be a good representation.
+  
+  .. This is particularly useful in methods like the Fast Multipole Method 
+     (FMM) or Particle Mesh Ewald (PME) method, where the computational domain is often divided into a grid, and 
+     each cell in the grid maintains a list of particles it contains.
+
+   In addition, hash tables are a staple of operating systems, compilers, and database systems.
