@@ -143,76 +143,10 @@ have it, C and Fortran are different in this respect. Well, Fortran is different
 Almost all other languages feature row major layout like C. Here is what the
 two layouts look like:
 
-.. list-table:: Row major layout, 0-based indexing (C)
-   :widths: 10 10 10 20 10
-   :header-rows: 1
+.. figure:: matrix-layout.png
 
-   * - Row / Col
-     - 0
-     - 1
-     - ...
-     - C-1
+   Multidimensional arrays: row major vs column major layout
 
-   * - **0**
-     - :math:`B`
-     - :math:`B+E`
-     - ...
-     - :math:`B+(C-1)E`
-
-   * - **1**
-     - :math:`B + CE`
-     - :math:`B+(C+1)E`
-     - ...
-     - :math:`B+(2C-1)E`
-   
-   * - ...
-     - ...
-     - ...
-     - ...
-     - ...
-
-
-   * - **R-1**
-     - :math:`B + (RC-C)E`
-     - :math:`B+(RC-C+1)E`
-     - ...
-     - :math:`B+(RC-1)E`
-
-
-.. list-table:: Column major layout, 1-based indexing (Fortran)
-   :widths: 10 10 10 20 10
-   :header-rows: 1
-
-   * - Row / Col
-     - 1
-     - 2
-     - ...
-     - C
-
-   * - **1**
-     - :math:`B`
-     - :math:`B+RE`
-     - ...
-     - :math:`B+(C-1)RE`
-
-   * - **2**
-     - :math:`B + E`
-     - :math:`B + (R+1)E`
-     - ...
-     - :math:`B+(C-1)RE+E`
-   
-   * - ...
-     - ...
-     - ...
-     - ...
-     - ...
-
-
-   * - **R**
-     - :math:`B + (R-1)E`
-     - :math:`B+(2R-1)E`
-     - ...
-     - :math:`B+(RC-1)E`
 
 For the C layout, we find element :math:`(i,j)` of an array with starting address 
 :math:`B` at :math:`B + (iC + j)E` where :math:`C` is the row length (number of 
