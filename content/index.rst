@@ -47,10 +47,10 @@ and its implementations.
    :widths: auto
    :delim: ;
 
-   20 min ; :doc:`algorithms`
-   10 min ; :doc:`compilers`
-   20 min ; :doc:`architecture`
-   10 hrs ; :doc:`tuning`
+   1h 30min ; :doc:`algorithms`
+   1h 45min ; :doc:`compilers`
+   4h       ; :doc:`architecture`
+   4h       ; :doc:`tuning`
 
 .. toctree::
    :maxdepth: 1
