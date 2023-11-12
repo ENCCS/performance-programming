@@ -30,7 +30,7 @@ or *RAM*, would need. Input sizes are measured in different ways for different a
   doing that for one star would be proportional to the number of cells, thus the size and the granularity
   of the simulated space becomes part of the size of the problem for this alternative approach.
 
-  Later, we will encounter the Barnes-Hut algorithm which combines these two approaches in a clever way.
+  .. Later, we will encounter the Barnes-Hut algorithm which combines these two approaches in a clever way.
 
 
 
@@ -47,8 +47,8 @@ on a RAM to solve a problem of size :math:`n`. The "large enough" provisio captu
 in what happens "in the limit". Technically, it for instance allows us to amortize
 any fixed cost initialization over the entire computation.
 
-Case study: Are the elements of an array unique?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Quadratic algorithms and hash tables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Consider the problem of determining if the elements of an array of interǵers are all unique. Here is a simple
 version that compares all pairs of elements:
@@ -158,3 +158,165 @@ hash table at the same time, which is application dependent.
      each cell in the grid maintains a list of particles it contains.
 
    In addition, hash tables are a staple of operating systems, compilers, and database systems.
+
+
+Divide and conquer, sorting and randomness
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Above, we used sorting to improve the performance of the ``unique`` function. Here we
+will take a look at how a sort function can be implemented. This will illustrate 
+some additional points about algorithm design.
+
+Below is an old and famous sorting algorithm known as Quicksort. It is an example of
+a recursive *divide and conquer* algorithm. The idea of this class of algorithm is to
+to divide a problem into smaller sub problems, solve the sub problems, and combine
+the solutions. For this scheme to work, small enough sub problems must be solved by
+another method or be trivial. For the case of sorting, an array with less than two 
+elements is trivially sorted.
+
+Thus, in a divide and conquer algorithm, the meat is in dividing the original 
+problem into two (or sometimes more) sub problems and then combining the results.
+Either of these steps, but not both, can be trivial (well, if both are trivial, you 
+are *very* lucky).
+
+.. literalinclude:: quicksort.c
+   :language: C
+   :linenos:
+
+We can visualize the execution of this algorithm as a call tree where each node
+corresponds to one call to ``quicksort``. The root is the call in the
+``main`` function which passes an array with 201 numbers. That array is then
+split in a lower and an upper part. Note that the numbers in the figure represent
+indices, places in the array, rather than the numbers in it.
+
+.. figure:: qs-calltre.png
+   :scale: 50%
+
+   The call tree of ``quicksort``
+
+As you can see, the tree is not perfectly balanced; the largest child will 
+process somewhat more than half of the data of its parent. If the division was
+perfect, the depth of the tree would be the base 2 logarithm of the number
+of elements in the array to be sorted. Now it will be somewhat larger, but not
+more than :math:`1.4 \log_2(n)` on average.
+
+As you can see in the figure, each layer of the call tree processes approximately
+:math:`n` numbers (pivots at upper levels are skipped). Hence the expected
+performance is roughly :math:`1.4n\log_2(n)`.
+
+But how fast is that in practice?
+
+.. exercise::
+
+   Explore the performance of ``quicksort``! You can build the program with the
+   following command:
+   
+   .. code-block:: bash
+   
+      gcc -O3 -o quicksort quicksort.c qmain.c
+   
+   This will give you an executable program that you can run as follows:
+   
+   .. code-block:: bash
+   
+      ./quicksort 1000
+   
+   The argument tells the main program how many numbers to have in the array to
+   sort. The numbers will be initialized randomly.
+   
+   You can get the execution time from the ``time`` command, as follows:
+
+   .. code-block:: bash
+   
+      time -p ./quicksort 1000
+   
+   Try out some different sizes!
+   
+.. solution::
+
+   Here are the results from the Core i7-8550U as well as a linear function
+   fitted to the smaller sizes (left part of plot).
+   
+   .. image:: quicksort-time.png
+
+   We see that for large :math:`N`, :math:`N \log(N)` is pretty linear, although
+   the constant is rather large; 96ns corresponds to some 350 clock cycles. But
+   that must be amortized over some 30-ish levels in the tree. This gives a cost
+   of just over 10 cycles per comparison, which, as we will see later, is expected.
+
+So far, we have run ``quicksort`` with randomly generated data, but what if the
+data is already sorted?
+
+.. exercise::
+
+   Explore the performance of ``quicksort`` on sorted input. The 
+   ``main`` function will initialise the array to be strictly increasing if
+   you invoke the program like this:
+   
+   .. code-block:: bash
+   
+      ./quicksort seq 1000
+   
+   Tip: Try smaller sizes first!
+
+
+.. solution::
+
+   Here is what we get on the Core i7-8550U:
+   
+   .. image:: quicksort-seq-time.png
+   
+   This is quite a big difference to the random input case. A quadratic function
+   fits very well.
+   
+What is happening here is that the pivot chosen always happens to be the largest
+value in the range, so in each case one of the recursive calls will get everything
+but the pivot wheras the other will get an empty range. Thus the depth becomes linear
+rather than logarithmic and the complexity becomes quadratic.
+
+One solution to this problem is to choose the pivot randomly. This means that
+instead of running slowly on some input arrays, the algorithm runs slowly on some
+random uses. Hence, whatever the input distribution, the algorithm will run 
+fast on average.
+
+.. literalinclude:: quicksort-rp.c
+   :language: C
+   :linenos:
+
+Here we make a random selection unless ``n`` is so small that it does not matter
+(if we would try to get a sort function that was fast in practice, we would probably
+go for another algorithm, for instance selection sort, for small ``n``).
+
+.. exercise::
+
+   Explore the performance of ``quicksort`` with random pivoting! You can build 
+   the program with the following command:
+   
+   .. code-block:: bash
+   
+      gcc -O3 -o quicksort quicksort-rp.c qmain.c
+   
+   This will give you an executable program that you can run as before:
+   
+   .. code-block:: bash
+   
+      ./quicksort 1000 # Randomly scrambled input
+      ./quicksort seq 1000 # Ordered input
+   
+   Try out some different sizes, and compare scrambled and ordered input!
+   
+.. solution::
+
+   Here are the results from the Core i7-8550U for both scrambeld and ordered input
+   and with the original (fixed pivot) scrambled input times.
+   
+   .. image:: quicksort-rp-time.png
+
+   We see that with rendom pivots, we are back to an almost linear behaviour.
+   Interestingly, the case with random pivot and ordered inputs runs almost three
+   times faster than the unordered input. We will come back to this when we know
+   more about computer architecture.
+   
+   We can also see that for unordered input, the random pivot version is somewhat
+   slower due to the cost of computing the random numbers.
+

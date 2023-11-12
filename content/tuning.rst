@@ -26,9 +26,18 @@ Here is a naive matrix multiply with the same structure as the classic definitio
 outer two loops iterate over the result array while the innermost loop computes the
 sum.
 
-.. literalinclude:: ex-mm-ref.c
-   :language: C
-   :linenos:
+.. tabs::
+
+   .. tab:: C
+   
+      .. literalinclude:: ex-mm-ref.c
+         :language: C
+         :linenos:
+
+   .. tab:: Fortran
+      .. literalinclude:: ex-mm-ref.f90
+         :language: fortran
+         :linenos:
 
 .. note::
 
@@ -358,6 +367,9 @@ Here are the example values as for my machine:
   iterations become a smaller and smaller part of the whole trip count of the
   summation loop.
 
+DAXPY
+=====
+
 At this point, we can conclude that with this program structure, where the
 innermost loop computes the sum, we will not get below four cycles per iteration
 of that loop for large matrix sizes. This leaves two possibilities:
@@ -376,9 +388,18 @@ DAXPY version. This loop ordering was used by the vector computers
 of old as a building block for matrix multiplication precisely because the loop
 iterations are independent.
   
-.. literalinclude:: ex-mm-daxpy.c
-   :language: C
-   :linenos:
+.. tabs::
+
+   .. tab:: C
+   
+      .. literalinclude:: ex-mm-daxpy.c
+         :language: C
+         :linenos:
+
+   .. tab:: Fortran
+      .. literalinclude:: ex-mm-daxpy.f90
+         :language: fortran
+         :linenos:
 
 As we can see, the reference to ``b`` is invariant with respect to the innermost
 (``j``) loop while the references to the two other matrices are stride 1. That is
@@ -480,6 +501,9 @@ which this area can be improved.
 
 - Only a quarter (two out of eight) of the instructions are arithmetic while
   the processor supports up to half.
+
+Vectorization
+"""""""""""""
 
 We will start by addressing the first point. There are in general several ways
 to get vectorized code:
@@ -723,14 +747,27 @@ Out of these two, we will do the register blocking since we can not perform loop
 unrolling as a source level transformation as it would interfere with the
 autovectorization done by the compiler.
 
+Blocking for registers
+======================
+
 Register blocking looks at the memory references in the innermost loop and attempt to
 amortize these over more computation. We get the additional computation by executing
 multiple iterations of the enclosing loops at once. Here is the
 new version of the code:
 
-.. literalinclude:: ex-mm-block.c
-   :linenos:
-   :language: C
+.. tabs::
+
+   .. tab:: C
+
+      .. literalinclude:: ex-mm-block.c
+         :linenos:
+         :language: C
+
+   .. tab:: Fortran
+
+      .. literalinclude:: ex-mm-block.f90
+         :linenos:
+         :language: fortran
 
 There is quite a lot to unpack here:
 
@@ -882,8 +919,15 @@ or larger would lead to some of the ``bik`` being spilled to memory by the compi
    per scalar ``fma`` or the ideal inner loop performance of 0.14 cycles per
    scalar ``fma``.
 
-For the larger matrix sizes, we loose some time to cache misses, so it seems
-worthwhile to try blocking for the cache as well.
+Blocking for the cache
+======================
+
+For the larger matrix sizes, we lose some time to cache misses, so it seems
+worthwhile to try blocking for the cache as well. The goal of this blocking is
+the ``c`` matrix which is indexed by
+``k`` and ``j`` and hence independent of
+``i``. So if we could limit the amount of data from this matrix touched within
+each iteration of the ``i`` loop, then the rest 
 
 .. exercise::
 
@@ -902,6 +946,9 @@ worthwhile to try blocking for the cache as well.
 
    .. image:: mm5-cpi.png
       :align: center
+   
+   As expected, we see no difference for small matrices, but from 150 and up we
+   see changes
 
 .. Can we do even better? We have a
 

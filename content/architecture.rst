@@ -4,8 +4,8 @@ Architecture
 This part gives an overview of computer architecture including common implementation
 techniques and how to adapt code to get the best performance from them.
 
-A crash course in computer architecture
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Introduction to computer architecture
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A computer is a device that executes a *machine code program*, with each major family
 of processors having its own *machine language* or *architecture*. A machine code
@@ -69,7 +69,7 @@ typically larger still, with sizes up to 512 bits.
    are R8D for the lower half of R8 and so on.
 
 Instruction level parallelism
-"""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Logically, the processor executes the program one instruction after another,
 in general according to the following steps:
@@ -222,10 +222,8 @@ Second, not only is the pipeline deep, it is also wide, with multiple instructio
 flowing through it "side by side". On every cycle, multiple instructions are 
 fetched (up to four or five in current processors). This feature was previ
 
-The pipelining of functional units together with 
-
 Out of order issue
-""""""""""""""""""
+^^^^^^^^^^^^^^^^^^
 
 In order to understand how a modern x86 processor core executes instructions, it is
 useful to think about the *(dynamic) instruction stream* which is the sequence of
