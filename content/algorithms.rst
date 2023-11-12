@@ -10,6 +10,44 @@ you write code to solve a new problem, or an old problem in a new way, you are o
 
 Hence this chapter of the lesson is about algorithms, or rather about algorithmic patterns.
 
+.. tip::
+
+   We will be measuring execution time in this and later parts. There are a few pitfalls
+   that one should be aware of.
+   
+   - Run your measurements on an unloaded system. Even if you have a multicore, there
+     are many resources that are shared between the cores, including the memory interface.
+     One perhaps surprising example is the power envelope; often clock frequency can be
+     raised if only one core is active.
+     
+     If you are following this workshop online, you are probably running a 
+     videoconferencing system in the background. That is very likely to affect
+     any measurements you make.
+  
+   - Do not measure too short times. There is always some overhead. There is also the case that
+     while the processor is not too busy, it runs with a reduced clock frequency,
+     and it may take a little time before the clock frequency is increased.
+     
+     I tend to want
+     to run for at least a quarter of a second or so. 
+   
+   - Do not make a longer time to measure by using a loop in a shell script, or
+     similar. Your program will be started many times, and that overhead may become
+     a large part of the time you measure.
+
+.. tip::
+
+   You can find the files used in this section
+   `here <https://github.com/ENCCS/performance-programming/blob/main/algorithm-files.zip>`_ as
+   a zip archive. Follow the link, click on "View raw" and you will get it downloaded.
+   Move or copy it to where you want it, then unpack it like this:
+   
+   .. code-block:: bash
+   
+      unzip algorithm-files.zip
+
+
+
 Complexity
 ^^^^^^^^^^
 
@@ -35,7 +73,7 @@ or *RAM*, would need. Input sizes are measured in different ways for different a
 
 
 Actual computers differ from the RAM and from each other in many details, and these have important
-consequences for performance, as we will see later in this lesson. However, almost always the difference
+consequences for performance, as we will see later. However, almost always the difference
 can be expressed as a constant multiplicative factor. That is, one machine is about :math:`X` times faster than
 another independent of the size of the input.
 
@@ -244,6 +282,13 @@ But how fast is that in practice?
    that must be amortized over some 30-ish levels in the tree. This gives a cost
    of just over 10 cycles per comparison, which, as we will see later, is expected.
 
+One conclusion we can draw from our study of ``quicksort`` is that as long as
+:math:`n` is the size of a data structure, that is related to memory size and not
+absolutely fantastically large, :math:`\log(n)` is more or less a constant (it will
+for instance hardly be larger than 40). Maybe
+not a very good constant, but it is not
+something that makes the complexity of a program grow without bound.
+
 So far, we have run ``quicksort`` with randomly generated data, but what if the
 data is already sorted?
 
@@ -319,4 +364,43 @@ go for another algorithm, for instance selection sort, for small ``n``).
    
    We can also see that for unordered input, the random pivot version is somewhat
    slower due to the cost of computing the random numbers.
+
+Sparse algorithms
+^^^^^^^^^^^^^^^^^
+
+The classical examples of sparse algorithms come from linear algebra. A *sparse* data 
+structure is one that contains a large fraction of zeroes. Such a data structure
+may be represented more compactly by taking advantage of its sparseness, typically
+by only representing the non zero elements. Similarly, when computing an inner
+product between two vectors, if one of them is sparse, only the positions where
+that vector is nonzero need to be considered.
+
+.. code-block:: C
+   :linenos:
+
+   typedef struct {
+      double val;
+      size_t index;
+   } nonzero_t;
+   
+   double ip(nonzero_t *sv, size_t n_nonzero, double* dv) {
+     double sum = 0;
+     for(size_t i = 0; i < n_nonzero; i++) {
+       sum += sv[i].val * dv[sv[i].index];
+     }
+     return sum;
+   }
+
+If more than half of the values in ``sv`` are zero, the sparse representation
+will be smaller. Also, the multiplication and addition need only be performed
+for the nonzero elements of ``sv``.
+
+On the other hand, we have indirect accesses for ``dv``; rather than simply walking
+through it like we would do in a dense implementation, we make random accesses 
+to the elements indicated by ``sv``. Also, SIMD vectorization becomes more difficult
+and less efficient.
+
+So in practice, the trade off may well be at 80-90% zeroes rather than 50%, but 
+that depends on details of algorithms and hardware.
+     
 
