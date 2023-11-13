@@ -4,6 +4,23 @@ Architecture
 This part gives an overview of computer architecture including common implementation
 techniques and how to adapt code to get the best performance from them.
 
+.. admonition:: Architecure, instruction set architecure, and micro architecture
+
+  The *instruction set architecture*, or *ISA*,
+  of a machine defines the semantics of machine
+  programs. It is the only information needed to produce correct programs.
+  
+  The same ISA can be implemented in many different ways, for instance
+  with or without caches and with different types and sizes of caches.
+  These implementation choices, at least in their overall structure,
+  is often referred to as the *micro architecture* of the machine.
+  
+  This leaves the term *architecture* somewhat vague. Sometimes, as when one
+  talks about "the x86 architecture", it refers to the ISA. On the other
+  hand, courses and books on "computer
+  architecture" often devote most of the space to discussions about micro
+  architecture.
+
 Introduction to computer architecture
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -826,24 +843,162 @@ means accesses that walk through the address space with a constant offset:
 Modern hardware prefetchers handle these kinds of patterns very well, so software
 prefetches are only needed/useful in some cases.
 
+Measuring the cache
+"""""""""""""""""""
 
-.. admonition:: Architecure, instruction set architecure, and micro architecture
+To sum up the performance of caches, let us take a look at the cache hierarchy 
+of the Core i7-8550U. We have done that using two different cache measurement
+programs.
 
-  The *instruction set architecture*, or *ISA*,
-  of a machine defines the semantics of machine
-  programs. It is the only information needed to produce correct programs.
-  
-  The same ISA can be implemented in many different ways, for instance
-  with or without caches and with different types and sizes of caches (although it
-  cannot be implemented with or without local memory, which is a feature of the
-  ISA). These implementation choices, at least in their overall structure,
-  is often referred to as the *micro architecture* of the machine.
-  
-  This leaves the term *architecture* somewhat vague. Sometimes, as when one
-  talks about "the x86 architecture", it refers to the ISA. On the other
-  hand, courses and books on "computer
-  architecture" often devote most of the space to discussions about micro
-  architecture.
+Latency measurements
+++++++++++++++++++++
+
+The first of these is designed to do latency measurent, so it is written
+in such a way that every access depends on getting the data from the previous access.
+The inner loop of this test looks as follows:
+
+.. code-block:: C
+
+    for (size_t i = 0; i < traversals; i++) {
+      for (size_t j = 0; j < blocks; j++) {
+        p = (void **)*p;
+      }
+    }
+
+The code follows a linked list of pointers in order to measure the latency of
+the accesses. The inner loop touches every block of a buffer once. The block 
+size is varied from 8 bytes (the size of a pointer) to 64 bytes (the size of a
+cache line). In all cases, the first 8 bytes of a block is the pointer. There 
+are ``blocks`` blocks in the buffer, and in order to get a suitable time for
+measurement, the buffer is traversed ``traversals`` times.
+
+There are two experiments made with this code.
+
+Sequential access
+   Here, the (first word in) the first block points at the (first word in) the
+   second block which points to the third and so on until the last block which 
+   points at the first one. This pattern is one which the hardware pre-fetchers
+   will understand easily. So even if the processor needs to get the pointer to
+   follow, the pre-fetchers have already guessed where the pointer will point.
+
+Random access
+   Here, the list has been scrambled. Each block is still visited once, but
+   not in an order that the hardware prefetchers understand.
+
+Here are the results for the latency measurements. The x-axis in these plots 
+is the base 2 logarithm of the buffer size in bytes. So the value 13 stands for
+:math:`2^{13} = 8192` bytes and the value 26 corresponds to :math:`2^{26}` bytes 
+which is 64 megabytes. The y-axis is the average time per access in nanoseconds.
+Since the machine ran the tests at about 3.5GHz, this figure should be multiplied
+with 3.5 to get the value in processor cycles.
+
+We first look at the results for a random traversal:
+
+.. image:: cache-lat-rand.png
+
+The left part of the plot is not easy to read, so we will zoom in later, but let us
+look at the overall shape. We have a very low latency up to 15 (corresponding to
+the 32KB L1 data cache), then another plateau from 64KB to 256KB which is the size
+of the L2 cache. The L3 cache yields another relatively flat region between 512KB
+and 4MB. The L3 cache is 8MB, but it is shared between all cores and also contains
+code, so when we can not use the whole size without starting to miss. As the buffer
+size increases, we approach 100ns (350 cycles) of access latency.
+
+Now, let us look at the sequential access pattern, in the same scale.
+
+.. image:: cache-lat-seq.png
+
+That was quite a difference! The latency in under ten nanoseconds even when going
+all the way to memory. Therse results are both a tribute to the pre-fetchers, but
+also to a very reasonable memory bandwidth. When we use a single pointer in each
+cache line (block size 64B), we read each pointer in about 7.1 nanoseconds. For
+this read the memory needs to transfer a cache line, so we have a read bandwidth
+of about 9GB/s.
+
+We will now zoom in on the left part of the plot, where data fits in the L1 or L2
+caches.
+
+.. image:: cache-lat-rand-small.png
+
+For the random access, we see that regardless of how many pointers per cache line
+we use, the access time is about 1.16 nanoseconds, which is the documented 4 cycle
+hit latency of the L1 data cache, as long as we use at most 32KB of buffer size.
+
+When we go from 32KB to 256KB we see that the different numbers of pointers per 
+cacheline start to matter. As we increase the buffer size, the access time increases
+to just above 4 nanoseconds (8 pointers per cache line) to just below 5 nanoseconds
+(1 pointer per cache line).
+
+What happens is that we still get some hits in the L1 data cache, especially for
+the 64KB buffer size where we get almost 50% hits for the 8 pointers per cache line
+case. To understand why, consider the situation somewhere in a traversal. Since 
+we have a buffer that is twice the size of the cache, the cache will contain half
+of the cache lines in the buffer. We will now make a random reference somewhere
+in the buffer. It is not surprising that we have a good chance of hitting one of the
+blocks that are present in the cache. The chance is slightly less than 50% since
+the blocks that are present have recently had one of their eight pointers read, and
+these will certainly not occur again until the next traversal. Thus pointers that
+fall outside the present blocks are a little more likely.
+
+Let us now look at the sequential access pattern.
+
+.. image:: cache-lat-seq-small.png
+
+Here we see that with 4 or 8 pointers per cache line, the pre-fetchers feed data
+quickly enough that it is always ready when needed. However, with the larger
+strides, it appears that the pre-fetchers, while useful in mitigating the latency,
+do not manage to fully hide it.
+
+Streaming reads
++++++++++++++++
+
+The other cache measurement is more oriented towards read bandwidth. Here we
+want to see how much data we can get into the core under different scenarios, so
+we use explicit SIMD programming to generate 32-byte reads which we xor together
+to avoid the compiler eliminating the whole loop. In fact, we edited the assembly
+to get a somewhat smoother code.
+
+We have run with different strides, but since the access size is 32 bytes rather
+than 8, a stride of 1 has two accesses per cache line, stride 2 has one, stride 4
+touches every other cache line an stride 8 reads one out of four.
+
+.. image:: cache-stream.png
+
+We see that the overall picture is somewhat similar to the case with dependent
+instructions; we have the lowest time per access when the buffer fits in the L1 data
+cache, a somewhat higher when when we read from the L2 cache, higher still with the
+L3 and highest when reading from memory. 
+
+However, because the loads here are 
+independent of each other, we have much shorter average times. When reading from 
+the L1 data cache we have a read time of about 0.17 nanoseconds, which translates
+to just under 0.6 cycles. Theoretically, we should be able to do 0.5 cycles (two 
+loads per cycle) but a small amount of time gets lost.
+
+The increase in time is also not as dramatic when we go to larger buffer sizes,
+so the outer levels in the memory hierarchy lose bandwidth slower than the gain 
+latency. this indicate that they support more and more concurrent 
+references.
+
+Larger strides give longer times per access as soon as we do not just read from
+the L1. It is no surprise that stride one should be better than stride two since
+the same amount of data is read for one two references with stride one and for one 
+reference for stride two. However, it is less clear what causes the difference 
+between stride two and stride four and between stride four and stride eight.
+
+.. image:: cache-stream-small.png
+
+We get the following table for achievable bancdwidth for different levels in the 
+memory hierarchy:
+
+=====   ================   ================   ================
+Level   Buffer size (KB)   Access time (ns)   Bandwidth (GB/s)
+=====   ================   ================   ================
+L1      32                 0.17               192
+L2      128                0.32               100
+L3      4096               0.65                49
+Mem     65536              3.11                10
+=====   ================   ================   ================
 
 Programming for the cache
 """""""""""""""""""""""""
