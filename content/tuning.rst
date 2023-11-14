@@ -366,7 +366,17 @@ Here are the example values as for my machine:
   increase in cycles per ``fma`` as the matrix size increases; the 28 overlapped
   iterations become a smaller and smaller part of the whole trip count of the
   summation loop.
+  
+  .. figure:: Inswin.png
 
+      The instruction window in the middle of an iteration of the ``j`` loop.
+      Several iterations of the ``k`` loop are visible.
+      
+  .. figure:: Inswin-later.png
+  
+      The instruction window at the boundary between two iterations of the ``j``
+      loop. Parallelism between the iterations is possible.
+  
 DAXPY
 =====
 
