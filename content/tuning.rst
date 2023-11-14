@@ -937,7 +937,23 @@ worthwhile to try blocking for the cache as well. The goal of this blocking is
 the ``c`` matrix which is indexed by
 ``k`` and ``j`` and hence independent of
 ``i``. So if we could limit the amount of data from this matrix touched within
-each iteration of the ``i`` loop, then the rest 
+each iteration of the ``i`` loop, then that data would fit in the L1 or L2 caches.
+
+Here is the code:
+
+.. tabs::
+
+   .. tab:: C
+
+      .. literalinclude:: ex-mm-bigblock.c
+         :linenos:
+         :language: C
+
+   .. tab:: Fortran
+
+      .. literalinclude:: ex-mm-bigblock.f90
+         :linenos:
+         :language: fortran
 
 .. exercise::
 
@@ -958,7 +974,119 @@ each iteration of the ``i`` loop, then the rest
       :align: center
    
    As expected, we see no difference for small matrices, but from 150 and up we
-   see changes
+   see some improvements.
 
-.. Can we do even better? We have a
+Can we do even better? We have an inner loop with as many ``fma`` operations as
+memory accesses and it is difficult to improve on that ratio without risking to
+run out of vector registers. The main problem is still that we both read
+and write the partial sums in the ``a`` matrix, a consequence of the DAXPY loop
+ordering. In order to push further, we need to explore the alternative to 
+the DAXPY loop ordering that we considered above.
 
+
+Explicit vectorization
+======================
+
+We now return to having the ``k`` loop as the innermost loop, just as in the
+textbook definition of matrix multiplication. We will however compute several
+sums in parallel.
+
+In contrast to the development of the DAXPY variant, we will only present the
+final version, which is vectorized and blocked for registers, L1 and L3.
+
+In contrast to the DAXPY versions, we have used explicit vectorization. With
+the loop structure we use in this code, we could not get the compiler to 
+vecorize reliably. We use the vector constructs implemented by GCC and Clang
+and thus we avoid using vector intrinsics. The vectorization is requested by 
+declaring a vector type:
+
+.. code-block:: C
+
+   typedef double __attribute__((vector_size(32))) v4d_t;
+
+This declaration creates a type of vectors of ``double`` of size 32 bytes.
+Since a ``double`` is eight bytes in size, such a vector has four elements.
+
+With this type declaration in hand we can now create arrays of such vectors
+in the usual way and we can also add, multiply, etc using the ordinary C operators.
+Vector variables can be initialized using the ``{...}`` syntax and can also be
+indexed to retrieve individual components.
+
+We use vector access for the ``a`` and ``c`` matrices, accessing them through
+pointers of type ``v4d_t*``. We have vectorized in the 
+``j`` dimension, which is the stride 1 direction for these matrices.
+From the ``b`` matrix, the accesses are invariant with respect to
+``j`` which means that we want to do scalar-vector multiplication with
+``c``. This functionality is also supported by the vector programming model.
+
+We have also used the ``unroll`` pragma of GCC. Together with constant loop bounds,
+this guarantees that the loops are completely unrolled and that arrays used in the
+loop and indexed with the associated index variables will be converted to sets of
+scalar variables. We could not use this construct in the DAXPY versions since the
+presence of inner loops, even if they were marked for complete unroll, disabled
+vectorization.
+
+We use transpose of the ``c`` matrix, which is a common optimization with
+this loop ordering. Consider the innermost loop (without other optimizations):
+
+.. code-block:: C
+
+   for(long k = 0; k < n; k++) {
+     sum += b[i*n + k] * c[k*n + j];
+   }
+
+The ``b`` matrix is accessed with unit stride (for row major layout) since
+``k`` has coefficient 1 in the index expression. In contrast, 
+``k`` has ``n`` as coefficient in the access to the 
+``c`` matrix. Hence it is a good idea to transpose this matrix and instead
+use the following code:
+
+.. code-block:: C
+
+   for(long k = 0; k < n; k++) {
+     sum += b[i*n + k] * cT[k + j*n];
+   }
+
+Here ``cT`` is the transposed version.
+
+In this version of the code, we do the transpose for blocks of the ``c`` matrix
+rather than once for the whole matrix. This gives us a block of the transposed
+matrix stored contiguously, eliminating the risk of cache conflicts between rows.
+
+We combine the transpose with vectorization
+by transposing the vectorized versrion of the ``c`` matrix. We thus essentially get
+a three dimensional array as ``c``-block, with ``j`` as the outermost dimension,
+``k`` as the middle dimension and then ``j`` again within the SIMD vector words.
+
+For simplicity, this version of the code only handles matrix sizes that are
+mutiples of 16.
+
+Here is
+the code:
+
+.. literalinclude:: ex-mm-explicit.c
+   :language: C
+   :linenos:
+
+.. exercise::
+
+   Explore the performance effect of cache and register blocking!
+   Compile with
+   
+   .. code-block:: bash
+   
+      gcc -O3 -march=native -o mmDx ex-mm-explicit.c ex-mm-main.c -lm
+   
+   Do we get any performance difference? Do not forget that the code only
+   supports matrix sizes that are multiples of 16!
+
+.. solution::
+
+   On the Core i7-8550U, we get the following:
+
+   .. image:: mm6-cpi.png
+      :align: center
+   
+   We are now fairly close to the ideal performance of 0.125 cycles per 
+   scalar ``fma``, with achieved performance varying from just over 0.15
+   to around 0.188.
