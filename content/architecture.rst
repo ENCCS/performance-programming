@@ -843,6 +843,66 @@ means accesses that walk through the address space with a constant offset:
 Modern hardware prefetchers handle these kinds of patterns very well, so software
 prefetches are only needed/useful in some cases.
 
+Virtual memory
+^^^^^^^^^^^^^^
+
+Computers generally run many processes at the same time, several of the loaded into
+memory. Moreover, processes are moved in and out of memory when the process
+has something to do or when memory gets scarce.
+
+It would be almost impossible to have the processes know what part of memory they
+are currently placed in, especially if the code of the process would need to know 
+that. Therefore, every process has their own *address space*. Recall that memory
+is like an array indexed with integer addresses. Under a virtual memory system,
+each process has its own array, and the same *virtual* address, which is what the
+processes use, in different address spaces corresponds to different physical memory
+addresses.
+
+To accomplish this, memory space is divided into *pages* which play a role that is
+similar to that of a cache line. On the x86, pages are 4096 bytes in size. The
+division of the address space into pages also divides addresses into a page number
+and a page offset:
+
+=============================   =====================
+Virtual page number (52 bits)   Page offset (12 bits)
+=============================   =====================
+
+On every memory access, the virtual page number is translated into a physical page
+number often called the *page frame number*. If the macine actually has 16GB of
+memory, the translated address looks like this:
+
+===========================   =====================
+Page frame number (22 bits)   Page offset (12 bits)
+===========================   =====================
+
+Note that the page offset is unaffected by the translation.
+
+The virtual page number is translated to a page frame number using a set of tables
+called the *page tables*. On some architectures like the x86, the hardware makes 
+which is often called the *page table walk*, wheras on other, especially RISC
+machines from the nineties, it is made by software. In either case, it is very 
+slow; on the face of it, we have replaced one memory reference by several.
+
+For this reason, there is of course a cache, called the *translation lookaside buffer*
+or *TLB*, for the translation. In fact, a modern processor has a multilevel TLB
+hierarchy. The TLB typically has fewer entries than the ordinary cache has cache lines
+since each entry provides translation information for a page which is much bigger
+than a cache line. For the first level TLB, 64 or so entries is not uncommon and in
+contrast to the case with caches, it may actually be fully associative.
+
+Virtual memory interacts with the rest of the cache system in interesting ways; do
+the caches work on virtual or physical addresses? The answer is that they work with 
+physical addresses because otherwise the caches would need to be flushed when 
+the processor switches to run another process for a while.
+
+In order for the TLB lookup not to slow down L1 cache access, the L1 cache is often
+organized to only use the page offset for indexing. It is not a coincidence that
+the Core i7-8550U has a, 32 KB 8-way set associative L1 cache because this makes
+for using exactly the 12 low order bits of the address as index. Then the TLB
+access is made in parallel with reading the (physical) tags which can then be 
+compared to the page frame number of the access.
+
+
 Measuring the cache
 """""""""""""""""""
 
