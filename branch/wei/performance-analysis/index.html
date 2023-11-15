@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Analysis &mdash; LESSON NAME  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Tuning" href="../tuning/" />
+    <link rel="prev" title="Architecture" href="../architecture/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            LESSON NAME
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilers/">Compilers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Performance Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-to-performance-analysis">1. Introduction to Performance Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-performance-analysis">Why Performance Analysis?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#types-of-performance-bottlenecks">Types of Performance Bottlenecks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-the-basics-of-hardware-and-software-profiling">2. Understanding the Basics of Hardware and Software Profiling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hardware-vs-software-profiling">Hardware vs. Software Profiling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#types-of-profiling">Types of Profiling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#selecting-the-right-tool">Selecting the Right Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dive-into-perf-linux-performance-tool">3. Dive into perf: Linux Performance Tool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#performance-profiling-with-perf">Performance Profiling with <cite>perf</cite></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tuning/">Tuning</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">LESSON NAME</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Performance Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/content/blob/main/content/performance-analysis.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="performance-analysis">
+<h1>Performance Analysis<a class="headerlink" href="#performance-analysis" title="Permalink to this heading"></a></h1>
+<section id="introduction-to-performance-analysis">
+<h2>1. Introduction to Performance Analysis<a class="headerlink" href="#introduction-to-performance-analysis" title="Permalink to this heading"></a></h2>
+<p>Performance analysis is the process of understanding and improving the efficiency of software and systems. By determining where and why a program is spending its time, developers can focus their optimization efforts where they will have the most impact. This section will introduce the foundational concepts and the importance of performance analysis in software development.</p>
+<section id="why-performance-analysis">
+<h3>Why Performance Analysis?<a class="headerlink" href="#why-performance-analysis" title="Permalink to this heading"></a></h3>
+<p>In today’s competitive software landscape, speed and efficiency can set a product apart. Users expect software to be responsive, and businesses require systems that can handle their workloads efficiently. Here are some reasons why performance analysis is essential:</p>
+<ul class="simple">
+<li><p><strong>User Experience:</strong> A responsive application can lead to a better user experience.</p></li>
+<li><p><strong>Cost Efficiency:</strong> Efficient software can reduce the need for expensive hardware upgrades.</p></li>
+<li><p><strong>Scalability:</strong> Understanding the performance of an application can help in scaling it for larger user bases or datasets.</p></li>
+<li><p><strong>Troubleshooting:</strong> Performance analysis can help pinpoint the root causes of unexpected system behaviors.</p></li>
+</ul>
+</section>
+<section id="types-of-performance-bottlenecks">
+<h3>Types of Performance Bottlenecks<a class="headerlink" href="#types-of-performance-bottlenecks" title="Permalink to this heading"></a></h3>
+<p>Performance bottlenecks can manifest in various ways:</p>
+<ul class="simple">
+<li><p><strong>CPU Bottlenecks:</strong> Where the processor is the limiting factor.</p></li>
+<li><p><strong>Memory Bottlenecks:</strong> Issues arising from RAM usage or cache misses.</p></li>
+<li><p><strong>IO Bottlenecks:</strong> Delays due to disk read/write or network operations.</p></li>
+<li><p><strong>Concurrency Issues:</strong> Problems related to multithreading or multiprocessing.</p></li>
+</ul>
+</section>
+</section>
+<section id="understanding-the-basics-of-hardware-and-software-profiling">
+<h2>2. Understanding the Basics of Hardware and Software Profiling<a class="headerlink" href="#understanding-the-basics-of-hardware-and-software-profiling" title="Permalink to this heading"></a></h2>
+<p>Profiling refers to the process of capturing and analyzing data related to the performance and behavior of software as it runs. It provides insights into where the program spends most of its time and which parts might benefit from optimization. Understanding the difference between hardware and software profiling is key to selecting the right tool and approach for performance analysis.</p>
+<section id="hardware-vs-software-profiling">
+<h3>Hardware vs. Software Profiling<a class="headerlink" href="#hardware-vs-software-profiling" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><dl class="simple">
+<dt><strong>Hardware Profiling:</strong></dt><dd><p>Utilizes the built-in hardware counters in modern processors to collect data. These counters can track events like cache misses, branch mispredictions, and more.</p>
+<ul>
+<li><dl class="simple">
+<dt><strong>Advantages:</strong></dt><dd><ul>
+<li><p>Highly accurate.</p></li>
+<li><p>Less invasive since it doesn’t modify the program’s execution.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Disadvantages:</strong></dt><dd><ul>
+<li><p>Requires specific hardware support.</p></li>
+<li><p>Might be more complex to set up.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Software Profiling:</strong></dt><dd><p>Uses software techniques to gather data, typically by injecting additional instructions into the program or by periodically sampling its state.</p>
+<ul>
+<li><dl class="simple">
+<dt><strong>Advantages:</strong></dt><dd><ul>
+<li><p>More versatile, can be used on any platform.</p></li>
+<li><p>Can capture high-level information, like call graphs.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Disadvantages:</strong></dt><dd><ul>
+<li><p>Can introduce overhead, potentially affecting the program’s behavior.</p></li>
+<li><p>Might not capture very low-level details like specific hardware events.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="types-of-profiling">
+<h3>Types of Profiling<a class="headerlink" href="#types-of-profiling" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Sampling Profilers:</strong> Collect data by periodically checking the program’s state. They provide a statistical overview of where time is spent.</p></li>
+<li><p><strong>Instrumenting Profilers:</strong> Modify the program’s code to record data. They can provide detailed insights but might introduce more overhead.</p></li>
+<li><p><strong>Trace Profilers:</strong> Record a continuous log of certain events, allowing for detailed post-mortem analysis.</p></li>
+</ul>
+</section>
+<section id="selecting-the-right-tool">
+<h3>Selecting the Right Tool<a class="headerlink" href="#selecting-the-right-tool" title="Permalink to this heading"></a></h3>
+<p>The choice of a profiling tool depends on:</p>
+<ul class="simple">
+<li><p><strong>Target Platform:</strong> Not all tools support all platforms or architectures.</p></li>
+<li><p><strong>Level of Detail Required:</strong> Some tools provide high-level overviews, while others delve into micro-optimizations.</p></li>
+<li><p><strong>Overhead Tolerance:</strong> Profiling can slow down the program, so it’s essential to consider the trade-off between accuracy and performance impact.</p></li>
+</ul>
+</section>
+</section>
+<section id="dive-into-perf-linux-performance-tool">
+<h2>3. Dive into perf: Linux Performance Tool<a class="headerlink" href="#dive-into-perf-linux-performance-tool" title="Permalink to this heading"></a></h2>
+<p><cite>perf</cite> is a powerful performance analysis tool available in the Linux ecosystem. It provides rich mechanisms to trace, profile, and report CPU events and system activities. Leveraging both hardware and software capabilities, <cite>perf</cite> can be employed to diagnose a variety of performance issues.</p>
+<section id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h3>
+<p><cite>perf</cite> is part of the Linux kernel source and offers a suite of commands to collect and analyze performance data. Some of the most commonly used functionalities include:</p>
+<ul class="simple">
+<li><p><cite>perf record</cite>: Captures performance data for later analysis.</p></li>
+<li><p><cite>perf report</cite>: Displays the data recorded with <cite>perf record</cite>.</p></li>
+<li><p><cite>perf list</cite>: Lists the events available for your platform.</p></li>
+<li><p><cite>perf stat</cite>: Provides a summary view of the events.</p></li>
+</ul>
+</section>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h3>
+<p>On many Linux distributions, you can install <cite>perf</cite> via the package manager:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>linux-tools-common<span class="w">   </span><span class="c1"># for Debian/Ubuntu</span>
+sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>perf<span class="w">                     </span><span class="c1"># for CentOS/RedHat</span>
+</pre></div>
+</div>
+<p>Here’s a list of various metrics you can measure using <cite>perf</cite>:</p>
+<section id="performance-profiling-with-perf">
+<h4>Performance Profiling with <cite>perf</cite><a class="headerlink" href="#performance-profiling-with-perf" title="Permalink to this heading"></a></h4>
+<p><cite>perf</cite> is an invaluable tool for understanding the various performance metrics of a program. By using <cite>perf</cite>, you can identify the inefficiencies and bottlenecks in your code and optimize it for better performance.</p>
+<p>Using <cite>perf</cite> to Measure Various Metrics</p>
+<p><strong>1. CPU Cycles</strong></p>
+<p>Measure the CPU cycles taken during the execution of your program:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>cycles<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p><strong>2. Cache References and Cache Misses</strong></p>
+<p>Inspect how often your program accessed the cache and its misses, which can indicate inefficient memory access:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>cache-references,cache-misses<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p><strong>3. Branch Instructions and Branch Misses</strong></p>
+<p>Check the efficiency of the program’s logical flow with branch misses:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>branches,branch-misses<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p><strong>4. Memory Access</strong></p>
+<p>Understand memory loads and stores for identifying memory-related performance issues:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>mem-loads,mem-stores<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p><strong>5. Context Switches</strong></p>
+<p>Monitor the frequency of context switches, especially crucial for multi-threaded applications:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>context-switches<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p><strong>6. CPU Migrations</strong></p>
+<p>Observe the number of times a process gets migrated between CPUs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>cpu-migrations<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p><strong>7. Page Faults</strong></p>
+<p>Track page faults, which occur when a program tries to access a memory page in the virtual address space that isn’t in the physical memory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>perf<span class="w"> </span>stat<span class="w"> </span>-e<span class="w"> </span>page-faults<span class="w"> </span>./your_program
+</pre></div>
+</div>
+<p>Once you’ve collected the data, compare the metrics against a baseline or expected values to identify anomalies or inefficiencies. Further, delve into the specific code sections contributing to these issues, refactor as necessary, and then rerun <cite>perf</cite> to confirm performance improvements.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../architecture/" class="btn btn-neutral float-left" title="Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tuning/" class="btn btn-neutral float-right" title="Tuning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
