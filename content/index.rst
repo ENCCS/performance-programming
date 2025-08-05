@@ -1,9 +1,7 @@
 Performance Programming
-=======================
+==========================
 
-In this lesson, you will learn to write efficient programs. Or at least get a first impulse; only by applying these
-techniqes in your own code you will truly understand them. It is also not just a set of techniques, but a mind set
-that you will acquire by using it.
+In this lesson, you will learn about efficient coding as well as how to measure and model programs performance using a set of standard tools. 
 
 We will deal with efficiency on several different levels:
 
@@ -13,7 +11,7 @@ We will deal with efficiency on several different levels:
 - Performance analysis: Does your program run in the way you intended?
 
 We will address these questions in a language and architecture agnostic way as far as possible, with code
-examples in C (and Fortran, when I have brushed up a bit). Our main architectural example will be the x86
+examples in C (and optionally Fortran, in some cases). Our main architectural example will be the x86
 and its implementations.
 
 .. prereq::
@@ -42,7 +40,6 @@ and its implementations.
    architecture
    tuning
 
-
 .. csv-table::
    :widths: auto
    :delim: ;
@@ -69,7 +66,7 @@ Who is the course for?
 This lesson material is targeted towards students, researchers, engineers, and
 developers who write programs that they would like to run faster. The focus of the
 course is on mid level languages like C, C++, Fortran and so on, but most of the
-issues discussed are relevant for assebly code, and at least the algorithm part can
+issues discussed are relevant for assembly code, and at least the algorithm part can
 be useful for code written in high level languages such as Julia and Haskell.
 
 The course assumes familiarity with C or Fortran syntax which is used for the code
@@ -89,13 +86,6 @@ The lesson material is licensed under `CC-BY-4.0
 (with appropriate credit) in other courses and workshops.
 Instructors who wish to teach this lesson can refer to the :doc:`guide` for
 practical advice.
-
-
-See also
---------
-
-
-
 
 Credits
 -------

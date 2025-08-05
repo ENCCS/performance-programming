@@ -5,7 +5,7 @@ In order to follow this workshop, you will need personal computer for the exerci
 This means that you should access to C and Fortran compilers in your computer.
 
 You can use an HPC cluster if you have access to one, but the installation instructions
-descried below cover how to install C and Fortran compilers in your own computer.
+described below cover how to install C and Fortran compilers in your own computer.
 
 The GCC compiler (GNU Compiler Collection) is a collection of compilers and libraries
 capable of compiling programs written in C, C++, GO, Fortran, and Objective-C programming languages.
@@ -25,7 +25,6 @@ Both C and Fortran compilers are usually installed in Linux and Unix OS.
 Just in case there is neither C nor Fortran compilers in your computer,
 you can follow the instructions `HERE <https://www.scaler.com/topics/c/install-c-on-linux/>`_ to install the GCC compiler.
 
-
 For Mac users
 ^^^^^^^^^^^^^
 
@@ -44,20 +43,25 @@ in the guide to install GCC compiler using Homebrew.
     - ``gcc --version``
     - ``which gfortran``
 
+.. tip:: clang and gcc
+
+  There are a few things you need to consider when using MacOS:
+
+  - When checking the version of gcc through the command above, in many cases you might see that it is Apple's version of clang (another compiler) being used instead. If that happens, check  the``/usr/local/bin`` directory and look for the direct command to start gcc, usually in the syntax of ``gcc-<version>``, such as ``gcc-14``.
+  - We often use ``time -p`` to measure performance of certain codes; however, it might be the case that your terminal returns the -p flag as command not found. If that happens, you should run ``command time -p <executable>``.
+
 
 For Windows users
 ^^^^^^^^^^^^^^^^^
 
-There are three options to install GCC compilers in your windows computer.
+There are three options to install GCC compilers in your Windows computer.
 
-- 1. You can install the **MinGW Utility** in your computer.
-  The detailed guidelines at `HERE <https://linuxhint.com/install-gcc-windows/>`_.
+- 1. The most recommended option is to install and use the Windows Subsystem for Linux, preferably with Debian or Ubuntu distributions.
+  The detailed guidelines are `HERE <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
 
-- 2. You can install **Cygwin**, which gives us a Unix-like environment running on Windows.
+- 2. You can install the **MinGW Utility** in your computer.
+  The detailed guidelines are `HERE <https://linuxhint.com/install-gcc-windows/>`_.
+
+- 3. You can install **Cygwin**, which gives us a Unix-like environment running on Windows.
   Then follow steps at `HERE <https://preshing.com/20141108/how-to-install-the-latest-gcc-on-windows/>`_
   to install GCC compilers.
-
-- 3. You can install **MobaXterm**, which provides a good Linux shell for the Windows operating system.
-  After the installation, follow steps at `HERE <https://mobaxterm.mobatek.net/plugins.html>`_
-  to download plugins and put them in the same directory that MobaXterm executable.
-

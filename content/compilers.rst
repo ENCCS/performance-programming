@@ -4,7 +4,9 @@ Compilers
 A compiler is a program that takes a program in a high level language such as C,
 Fortran, or Haskell, and translates it to a lower level target language. In most
 cases, the target language is some form of *assembly language*; a textual 
-representation of the machine code of some family of computers.
+representation of the machine code of some family of computers. Meanwhile,
+interpreted languages (e.g. Python, JavaScript) have their code translated to
+machine code *during* runtime.
 
 Compilation generally proceeds in a number of steps and even though details vary,
 the general sequence is as follows:
@@ -122,9 +124,6 @@ stored; we can find it at address :math:`B+iE`.
 
    Fortran uses 1-based indexing, so the first element has index one. Thus the
    correct expression is :math:`B + (i-1)E`.
-   
-   This is one point where the present author strongly prefers C.
-
 
 We can typically keep track of the array in memory by keeping track of where it
 starts. The size of each element depends on the element type of the array, which
@@ -207,6 +206,15 @@ We will illustrate some of these techniques as rewrites of C code, something tha
 is possible since, for being a high level language, C is rather low level. In
 particular, the design of pointers in C allows for considerable freedom in their
 use.
+
+.. admonition:: Why is this relevant?
+  Many of the techniques displayed here are performed automatically in compilers.
+  For example, GCC has the optimization flags ``-O0`` (no optimization) to ``-O3```
+  (aggressive optimization) that will do everything automatically.
+
+  So, why is this important? There might be many situations where you want to be
+  in control of what the compiler is doing, especially in codes that are to be 
+  deployed in sensitive environments (e.g., production).
 
 Constant folding
 """"""""""""""""
@@ -320,6 +328,7 @@ comes from the *alias problem*: Is ``a[i+1]`` another name (an alias) for
 the same memory location as ``b[i]``?
 
 Here we got our first example of "doing something fewer times".
+
 
 Loop invariant removal
 """"""""""""""""""""""
@@ -632,10 +641,84 @@ function we get:
 We have now finally arrived at the basic code structure that we would see
 rendered in assembly as compiler output.
 
-.. Unreachable code elimination
-   """"""""""""""""""""""""""""
 
-   Inlining
-   """"""""
+Unreachable code elimination
+""""""""""""""""""""""""""""
+Unreachable code, which is never executed in the program, should also be eliminated as
+it serves for nothing other than occupy memory space. A typical example is
+code that is written after a return statement. In the example below, whatever is
+written after ``return c`` will not ever be executed, therefore the two last lines
+may be removed.
 
+.. code-block:: C
+  int global; 
 
+  int foo(void) {
+  int i;
+  i = 1;
+  global = 1; 
+  global = 2;
+  return;
+  global = 3;
+  return 0;
+}
+
+The code can be enhanced even further by noticing that only the last value of ``global`` is
+the only one that matters before the function returns. In similar way, ``i`` is not used in the
+scope of that function and therefore can be removed as well.
+
+.. code-block:: C
+  int global; 
+
+  int foo(void) {
+  global = 2;
+  return;
+}
+
+While the examples above are relatively trivial, elimination of unreachable code, especially when automatically done
+by the compiler, can be especially relevant in large code bases where it is not necessarily obvious that the code will not be 
+executed due to where it is placed.
+
+Inlining
+"""""""""
+Another optimization commonly desired is to avoid the overhead of function calls. This overhead is associated to the process of saving
+the caller state (registers, return address), pushing arguments and stacks or into registers, branching to the function address, and then
+returning. Functions that are called with very high-frequency, or ones that perform trivial operations are good candidates to be inlined. 
+
+In practice, what we do is to replace the function code directly into the main code if possible.
+
+.. code-block:: C
+  int clamp(int x, int min, int max) {
+      if (x < min) return min;
+      if (x > max) return max;
+      return x;
+  }
+
+  void process(int* data, int size) {
+      for (int i = 0; i < size; i++) {
+          data[i] = clamp(data[i], 0, 100);
+      }
+  }
+
+In the example above, the function ``clamp`` is called several times. It is a good candidate for inlining as it is small, simple,
+and the arguments are often constants (i.e., one can fold constants and eliminate unecessary comparisons). Therefore, the function
+``process`` may be rewritten as follows.
+
+.. code-block:: C
+  void process(int* data, int size) {
+      for (int i = 0; i < size; i++) {
+          int x = data[i];
+          if (x < 0) x = 0;
+          else if (x > 100) x = 100;
+          data[i] = x;
+      }
+  }
+
+One may tip the compilers by using the ``inline`` keyword on the function header. It is also possible to optimize even more the 
+previous example through the usage of ternary operators and therefore avoid more branching.
+
+Further reads
+---------------
+
+- Robert Nystrom. "Crafting Interpreters", 1st Edition. Genever Benning. 2021.
+- Keith Cooper and Linda Torczon. "Engineering a Compiler", 3rd Edition. MK Publishers. 2025.

@@ -151,7 +151,7 @@ processor will at any time work on several instructions in parallel.
 
 .. admonition:: Dependencies
 
-   Dependencies constrain the order a set of operations can be be execuetd in
+   Dependencies constrain the order a set of operations can be executed in
    by requiring that one operation be executed after (or in some cases not before)
    another. There are three main kinds of dependencies that are related to data:
    
@@ -391,7 +391,7 @@ that have not yet reached the back end.
 We will call the middle portion of the instruction stream the *current instruction
 window*. The significance of the window is that the window moves through the 
 instruction stream in order; instructions enter the window in the order they occur
-in the stream and they exit in that same order. Within the window, howerver, they
+in the stream and they exit in that same order. Within the window, however, they
 will in general execute out-of-order with respect to stream order.
 
 It should come as no surprise that the account up to now is simplified, so we
@@ -1221,7 +1221,7 @@ as for the L1 cache and L3 cache, for instance.
 Programming for prefetch
 """"""""""""""""""""""""
 
-There are a few things to think about when it comes to programming for pre fetching.
+There are a few things to think about when it comes to programming for prefetching.
 
 - Prefetches need to be "just-in-time". If they are too early, they risk knocking
   useful data out of the cache, and if they are too late, they do not hide all
@@ -1244,3 +1244,15 @@ There are a few things to think about when it comes to programming for pre fetch
   Hence it is important to mix them with other instructions and also not generate
   several prefetches for the same cache line, something that might require loop
   unrolling.
+
+.. admonition:: Simulating the behaviour
+  If you want to dive deeper in this lesson, there are architecture simulators such
+  as `"Gem5" <https://gem5.org>`_. (open source) and `"Intel Simics" <https://www.intel.com/content/www/us/en/developer/articles/tool/simics-simulator.html>`_. (proprietary, but free for researchers) that allows you
+  to work with memory hierarchies and different CPU features, such as prefetching
+  and multicore, while running your own program, and therefore being able to see the performance of the code in more detail.
+
+Further reads
+---------------
+
+- David A. Patterson, John L. Hennessy. "Computer Organization and Design (RISC-V Edition)". MK Publishers. 2021.
+- Christos Kozyrakis, John L. Hennessy and David A. Patterson. "Computer Architecture: A Quantitative Approach". MK Publishers. 2025.

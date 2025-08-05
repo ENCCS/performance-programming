@@ -19,7 +19,7 @@ advanatges as an example, including:
   neural network architecture is called, consist almost entirely of matrix
   multiplications.
 
-Matrix matrix multiplication
+Matrix-matrix multiplication
 ============================
 
 Here is a naive matrix multiply with the same structure as the classic definition. The
@@ -115,7 +115,7 @@ possible execution time and comparing that lower bound to the observed performan
 Such a bound will often come from reasoning about the resources necessarily
 consumed by the program. 
 
-What resources can be used to form this bound depends on what techniqes one is
+What resources can be used to form this bound depends on what techniques one is
 ready to use to increase performance. For instance, there are algorithms for 
 matrix multiplication that have a better complexity than :math:`O(n^3)`, one
 example being Strassen's algorithm which is approximately :math:`O(n^{2.8})`.
@@ -228,7 +228,7 @@ when we compiled the matrix multiplication program. Oops!
    .. image:: mm1opt-cpi.png
       :align: center
    
-   If you think that some of the graphs were not renderd: All of the optimization
+   If you think that some of the graphs were not rendered: All of the optimization
    levels give identical results. If you look closely, the lower graph shimmers
    a bit here and there.
 
@@ -1054,7 +1054,7 @@ rather than once for the whole matrix. This gives us a block of the transposed
 matrix stored contiguously, eliminating the risk of cache conflicts between rows.
 
 We combine the transpose with vectorization
-by transposing the vectorized versrion of the ``c`` matrix. We thus essentially get
+by transposing the vectorized version of the ``c`` matrix. We thus essentially get
 a three dimensional array as ``c``-block, with ``j`` as the outermost dimension,
 ``k`` as the middle dimension and then ``j`` again within the SIMD vector words.
 
@@ -1090,3 +1090,8 @@ the code:
    We are now fairly close to the ideal performance of 0.125 cycles per 
    scalar ``fma``, with achieved performance varying from just over 0.15
    to around 0.188.
+
+Further reads
+---------------
+
+David Spuler. "Efficient Modern C++ Data Structures: Container and Algorithm Optimizations", 1st Edition. Self-published. 2025.

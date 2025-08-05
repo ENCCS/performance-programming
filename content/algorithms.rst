@@ -26,10 +26,8 @@ Hence this chapter of the lesson is about algorithms, or rather about algorithmi
   
    - Do not measure too short times. There is always some overhead. There is also the case that
      while the processor is not too busy, it runs with a reduced clock frequency,
-     and it may take a little time before the clock frequency is increased.
-     
-     I tend to want
-     to run for at least a quarter of a second or so. 
+     and it may take a little time before the clock frequency is increased. 
+     A good idea is to want to run for at least a quarter of a second or so. 
    
    - Do not make a longer time to measure by using a loop in a shell script, or
      similar. Your program will be started many times, and that overhead may become
@@ -367,13 +365,27 @@ go for another algorithm, for instance selection sort, for small ``n``).
 
 Sparse algorithms
 ^^^^^^^^^^^^^^^^^
+A typical situation when dealing with vectors or matrices is when one of them 
+are sparse, meaning that it contains a large fraction of zeroes. An example is the 
+inner product between two vectors. If calculations are executed through the usual method, 
+as seen in the code below, a lot of time will be wasted in computing zeroes. 
 
-The classical examples of sparse algorithms come from linear algebra. A *sparse* data 
-structure is one that contains a large fraction of zeroes. Such a data structure
-may be represented more compactly by taking advantage of its sparseness, typically
-by only representing the non zero elements. Similarly, when computing an inner
-product between two vectors, if one of them is sparse, only the positions where
-that vector is nonzero need to be considered.
+.. code-block:: C
+   :linenos:
+
+   double traditional_ip(double *v1, double *v2, size_t size) {
+   double sum = 0;
+   for(size_t i = 0; i < size; i++) {
+      sum += v1[i] * v2[i];
+   }
+   return sum;
+   }
+
+Instead, the classical examples of sparse algorithms come from linear algebra and
+teach us to represent such data structures more compactly by taking advantage of
+its sparseness, typically, by only representing the non zero elements.
+Similarly, when computing the inner product between two vectors, if one of them is sparse, 
+only the positions where that vector is nonzero need to be considered.
 
 .. code-block:: C
    :linenos:
@@ -383,7 +395,7 @@ that vector is nonzero need to be considered.
       size_t index;
    } nonzero_t;
    
-   double ip(nonzero_t *sv, size_t n_nonzero, double* dv) {
+   double sparse_ip(nonzero_t *sv, size_t n_nonzero, double* dv) {
      double sum = 0;
      for(size_t i = 0; i < n_nonzero; i++) {
        sum += sv[i].val * dv[sv[i].index];
@@ -402,5 +414,36 @@ and less efficient.
 
 So in practice, the trade off may well be at 80-90% zeroes rather than 50%, but 
 that depends on details of algorithms and hardware.
-     
 
+.. exercise::
+   The code dotproduct.c includes both the method above as well as a direct method
+   for calculating dot products. Explore and compare their performance!
+
+      .. code-block:: bash
+         gcc -O3 -o dotproduct dotproduct.c
+
+   To use, you can use the parameters such as vector size, method (sparse, traditional), and degree of sparsity (from 0 to 1).
+
+      .. code-block:: bash
+         ./dotproduct --size 10000000 --method both --sparcity 0.9
+   
+   The code already displays time measurements, so you do not need to use ``time -p`` 
+   before running it. Try variating both the vector size and the amount of sparsity!
+
+.. solution::
+   .. image:: sparsity-comparison.png
+
+      The execution keeps roughly between 2 to 3 times faster in the sparse method as the length 
+      of the array increases.
+
+      On the right, for lower sparsity,  the traditional method of calculating inner product
+      ends up being faster than the sparse method. This changes more drasticly at around 50 to 60%, 
+      and having a even more faster execution time when the sparsity is at over 90% (i.e., 95%, 99%, 99.9%).
+      In the last two cases, the execution time can be up to 45 times faster in the sparse method.
+
+Further reads
+---------------
+
+- Thomas H. Cormen, Charles E. Leiserson and others. "Introduction to Algorithms", Fourth Edition. The MIT Press. 2022.
+- Phillip N. Klein. "Coding the Matrix: Linear Algebra Through Applications to Computer Science", 2013 Edition. Newtonian Press. 2013.
+- Harold Abelson, Gerald Jay Sussman and others. "Structure and Interpretation of Computer Programs", 2nd Edition. The MIT Press. 1996.
