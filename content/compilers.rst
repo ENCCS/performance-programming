@@ -718,7 +718,7 @@ One may tip the compilers by using the ``inline`` keyword on the function header
 previous example through the usage of ternary operators and therefore avoid more branching.
 
 Further reads
----------------
+^^^^^^^^^^^^^^^
 
 - Robert Nystrom. "Crafting Interpreters", 1st Edition. Genever Benning. 2021.
 - Keith Cooper and Linda Torczon. "Engineering a Compiler", 3rd Edition. MK Publishers. 2025.

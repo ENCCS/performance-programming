@@ -1252,7 +1252,7 @@ There are a few things to think about when it comes to programming for prefetchi
   and multicore, while running your own program, and therefore being able to see the performance of the code in more detail.
 
 Further reads
----------------
+^^^^^^^^^^^^^^^
 
 - David A. Patterson, John L. Hennessy. "Computer Organization and Design (RISC-V Edition)". MK Publishers. 2021.
 - Christos Kozyrakis, John L. Hennessy and David A. Patterson. "Computer Architecture: A Quantitative Approach". MK Publishers. 2025.

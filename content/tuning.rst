@@ -1092,6 +1092,6 @@ the code:
    to around 0.188.
 
 Further reads
----------------
+^^^^^^^^^^^^^^^
 
-David Spuler. "Efficient Modern C++ Data Structures: Container and Algorithm Optimizations", 1st Edition. Self-published. 2025.
+- David Spuler. "Efficient Modern C++ Data Structures: Container and Algorithm Optimizations", 1st Edition. Self-published. 2025.

@@ -442,7 +442,7 @@ that depends on details of algorithms and hardware.
       In the last two cases, the execution time can be up to 45 times faster in the sparse method.
 
 Further reads
----------------
+^^^^^^^^^^^^^
 
 - Thomas H. Cormen, Charles E. Leiserson and others. "Introduction to Algorithms", Fourth Edition. The MIT Press. 2022.
 - Phillip N. Klein. "Coding the Matrix: Linear Algebra Through Applications to Computer Science", 2013 Edition. Newtonian Press. 2013.
