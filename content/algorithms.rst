@@ -413,28 +413,29 @@ that depends on details of algorithms and hardware.
    The code dotproduct.c includes both the method above as well as a direct method
    for calculating dot products. Explore and compare their performance!
 
-      .. code-block:: bash
-         gcc -O3 -o dotproduct dotproduct.c
+   .. code-block:: bash
+      gcc -O3 -o dotproduct dotproduct.c
 
    To use, you can use the parameters such as vector size, method (sparse, traditional), and degree of sparsity (from 0 to 1).
 
-      .. code-block:: bash
-         ./dotproduct --size 10000000 --method both --sparcity 0.9
+   .. code-block:: bash
+      ./dotproduct --size 10000000 --method both --sparcity 0.9
    
    The code already displays time measurements, so you do not need to use ``time -p`` 
    before running it. Try variating both the vector size and the amount of sparsity!
 
 .. solution::
-   
+
+   Here are the results from the previous exercise.
+
    .. image:: sparsity-comparison.png
 
-      The execution keeps roughly between 2 to 3 times faster in the sparse method as the length 
-      of the array increases.
+   The execution keeps roughly between 2 to 3 times faster in the sparse method as the length  of the array increases.
 
-      On the right, for lower sparsity,  the traditional method of calculating inner product
-      ends up being faster than the sparse method. This changes more drasticly at around 50 to 60%, 
-      and having a even more faster execution time when the sparsity is at over 90% (i.e., 95%, 99%, 99.9%).
-      In the last two cases, the execution time can be up to 45 times faster in the sparse method.
+   On the right, for lower sparsity,  the traditional method of calculating inner product
+   ends up being faster than the sparse method. This changes more drasticly at around 50 to 60%, 
+   and having a even more faster execution time when the sparsity is at over 90% (i.e., 95%, 99%, 99.9%).
+   In the last two cases, the execution time can be up to 45 times faster in the sparse method.
 
 Further reads
 ^^^^^^^^^^^^^
