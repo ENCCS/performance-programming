@@ -414,11 +414,13 @@ that depends on details of algorithms and hardware.
    for calculating dot products. Explore and compare their performance!
 
    .. code-block:: bash
+
       gcc -O3 -o dotproduct dotproduct.c
 
    To use, you can use the parameters such as vector size, method (sparse, traditional), and degree of sparsity (from 0 to 1).
 
    .. code-block:: bash
+      
       ./dotproduct --size 10000000 --method both --sparcity 0.9
    
    The code already displays time measurements, so you do not need to use ``time -p`` 
