@@ -651,6 +651,7 @@ written after ``return c`` will not ever be executed, therefore the two last lin
 may be removed.
 
 .. code-block:: C
+  
   int global; 
 
   int foo(void) {
@@ -668,6 +669,7 @@ the only one that matters before the function returns. In similar way, ``i`` is 
 scope of that function and therefore can be removed as well.
 
 .. code-block:: C
+
   int global; 
 
   int foo(void) {
@@ -688,6 +690,7 @@ returning. Functions that are called with very high-frequency, or ones that perf
 In practice, what we do is to replace the function code directly into the main code if possible.
 
 .. code-block:: C
+
   int clamp(int x, int min, int max) {
       if (x < min) return min;
       if (x > max) return max;
@@ -705,6 +708,7 @@ and the arguments are often constants (i.e., one can fold constants and eliminat
 ``process`` may be rewritten as follows.
 
 .. code-block:: C
+
   void process(int* data, int size) {
       for (int i = 0; i < size; i++) {
           int x = data[i];
