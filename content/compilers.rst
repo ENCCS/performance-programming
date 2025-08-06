@@ -42,7 +42,7 @@ the general sequence is as follows:
    of) an x86, here we tackle the details of the machine, trying to exploit its
    stregths and work around its weaknesses.
 
-5. Low level optimization. Here we try to improve the machine dependent aspects of
+5. Low level optimization. Here, we try to improve the machine dependent aspects of
    the code, perhaps applying transformations that would not make sense on a 
    different machine.
 
@@ -72,7 +72,7 @@ Arrays
 A computer memory is a linear sequence of memory locations, each with its own
 address. Memory is in this sense similar to an array, and it is straight forward
 to implement a one dimensional array as a block of memory large enough to contain
-all of the elements of the array. In C, the first element has index 0, wheras in
+all of the elements of the array. In C, the first element has index 0, whereas in
 Fortran, the first element has index 1.
 
 .. list-table:: Array layout (C style)
@@ -137,7 +137,7 @@ is statically known.
 
 For multidimensional arrays, things are somewhat trickier. In order to be able
 to find elements efficiently based on their indices, the layout must be regular.
-The two most common layouts are *row major* and *column major* and as luck would
+The two most common layouts are *row major* and *column major* and, as luck would
 have it, C and Fortran are different in this respect. Well, Fortran is different.
 Almost all other languages feature row major layout like C. Here is what the
 two layouts look like:
@@ -194,7 +194,7 @@ expression in our programs. We will see quite a lot of that later.
 High level optimization
 =======================
 
-This are includes a lot of different techniques that are roughly concerned with
+This includes a lot of different techniques that are roughly concerned with
 
 - not doing things,
 
@@ -208,6 +208,7 @@ particular, the design of pointers in C allows for considerable freedom in their
 use.
 
 .. admonition:: Why is this relevant?
+
   Many of the techniques displayed here are performed automatically in compilers.
   For example, GCC has the optimization flags ``-O0`` (no optimization) to ``-O3```
   (aggressive optimization) that will do everything automatically.
@@ -229,12 +230,12 @@ Also, it may well be that the source code contained
    #define K 1024
    #define M K*K
 
-and then we had ``16*K`` and ``512*M`` at various places.
+and then we had ``16*K`` and ``512*M`` at various places. 
 
 Fortunately, the compiler will evaluate all such expressions at compile time.
 
 Copy propagation
-""""""""""""""""
+""""""""""""""""""
 
 Sometimes, we find statements just doing copies in our code. More often, there are
 previous optimizations that have created these copies, which might enable these
@@ -267,6 +268,41 @@ about assignments to dead variables (a variable is *dead* at a point in the
 program if it will certainly not be read before it is assigned to again).
 
 Both constant folding and copy propagation are examples of "not doing something".
+
+Dead code elimination
+""""""""""""""""""""""
+
+This is where code in the program is executed but has no effect at all. 
+
+There are several textbook cases where the compiler will remove code that is not used at all by the software.
+Aside the trivial case described above, an interesting can be on a conditional branch that is always set to false in a less trivial way:
+
+.. code-block:: c
+
+  int expensive_check() {
+      return 0;
+  }
+
+  int main() {
+      int x = 42;
+
+      if (x == 0 && expensive_check()) {
+          printf("This branch is dead.\n");
+      }
+
+      printf("Done.\n");
+      return 0;
+  }
+
+In this case, if one is using more aggressive optimizations (``-O2`` or ``-O3`` in GCC), the compiler may be able to detect that such pattern will never be executed and instead have as code:
+
+.. code-block:: c
+
+  int main() {
+      printf("Done.\n");
+      return 0;
+  }
+
 
 Common subexpression elimination
 """"""""""""""""""""""""""""""""
@@ -367,10 +403,6 @@ made explicit:
        }
      }
    }
-
-.. Since this code is C, it uses the array semantics of the C language which leaves 
-   the multiplication with the size of the array element type to the compiler. For
-   the purpose of this discussion
 
 We see that the ``i*n`` expression is invariant in the inner loop, so we can 
 move it out:
@@ -644,14 +676,21 @@ rendered in assembly as compiler output.
 
 Unreachable code elimination
 """"""""""""""""""""""""""""
-Unreachable code, which is never executed in the program, should also be eliminated as
+
+.. tip::
+
+  Unreachable code is never accessed or called during the software's entire life cycle, while dead code (discussed above) 
+  is executed but has no effect on the function of a program.
+
+
+Unreachable code should also be eliminated as
 it serves for nothing other than occupy memory space. A typical example is
 code that is written after a return statement. In the example below, whatever is
 written after ``return c`` will not ever be executed, therefore the two last lines
 may be removed.
 
 .. code-block:: C
-  
+
   int global; 
 
   int foo(void) {
@@ -664,7 +703,7 @@ may be removed.
   return 0;
 }
 
-The code can be enhanced even further by noticing that only the last value of ``global`` is
+The code can be enhanced even further via dead code elimination by noticing that only the last value of ``global`` is
 the only one that matters before the function returns. In similar way, ``i`` is not used in the
 scope of that function and therefore can be removed as well.
 
@@ -722,7 +761,7 @@ One may tip the compilers by using the ``inline`` keyword on the function header
 previous example through the usage of ternary operators and therefore avoid more branching.
 
 Further reads
-^^^^^^^^^^^^^^^
+==============
 
 - Robert Nystrom. "Crafting Interpreters", 1st Edition. Genever Benning. 2021.
 - Keith Cooper and Linda Torczon. "Engineering a Compiler", 3rd Edition. MK Publishers. 2025.

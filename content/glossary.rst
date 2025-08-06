@@ -11,10 +11,12 @@ Glossary
      - Compute Unified Device Architecture
    * - GCC 
      - GNU Compiler Collection
+   * - IR
+     - Intermediate Representation
    * - ISA
      - Instruction Set Architecture
    * - GPU
-     - graphics processing units
+     - Graphics Processing Unit
    * - SIMD
      - single instruction multiple data
    * - SIMT
