@@ -4,8 +4,7 @@ Algorithms
 The first step towards writing efficient code is to start from a good algorithm. It is also where
 the most dramatic performance improvements can be found.
 
-Sometimes good 
-algorithms are available in libraries and the only thing one needs to do is to call them. But when
+Sometimes good algorithms are available in libraries and the only thing one needs to do is to call them. But when
 you write code to solve a new problem, or an old problem in a new way, you are on your own.
 
 Hence this chapter of the lesson is about algorithms, or rather about algorithmic patterns.
@@ -44,15 +43,13 @@ Hence this chapter of the lesson is about algorithms, or rather about algorithmi
    
       unzip algorithm-files.zip
 
-
-
 Complexity
 ^^^^^^^^^^
 
 Algorithms are often categorized by their *complexity*, meaning their execution time as a function of
 the size of the input. Since the actual running time varies between systems, the execution time we use
 in this context is the number of steps that an idealized (model of a) computer called a Random Access Machine,
-or *RAM*, would need. Input sizes are measured in different ways for different algorithms.
+or *RAM* (do not confound with *Random Access Memory*), would need. Input sizes are measured in different ways for different algorithms.
 
 .. admonition:: Example
 
@@ -65,10 +62,6 @@ or *RAM*, would need. Input sizes are measured in different ways for different a
   size cells and compute the force on each star by considering the mass of stars in each cell. The cost of
   doing that for one star would be proportional to the number of cells, thus the size and the granularity
   of the simulated space becomes part of the size of the problem for this alternative approach.
-
-  .. Later, we will encounter the Barnes-Hut algorithm which combines these two approaches in a clever way.
-
-
 
 Actual computers differ from the RAM and from each other in many details, and these have important
 consequences for performance, as we will see later. However, almost always the difference
@@ -292,7 +285,7 @@ data is already sorted?
 
 .. exercise::
 
-   Explore the performance of ``quicksort`` on sorted input. The 
+   Explore the performance of ``quicksort`` in a sorted input. The 
    ``main`` function will initialise the array to be strictly increasing if
    you invoke the program like this:
    
@@ -416,6 +409,7 @@ So in practice, the trade off may well be at 80-90% zeroes rather than 50%, but
 that depends on details of algorithms and hardware.
 
 .. exercise::
+   
    The code dotproduct.c includes both the method above as well as a direct method
    for calculating dot products. Explore and compare their performance!
 
@@ -431,6 +425,7 @@ that depends on details of algorithms and hardware.
    before running it. Try variating both the vector size and the amount of sparsity!
 
 .. solution::
+   
    .. image:: sparsity-comparison.png
 
       The execution keeps roughly between 2 to 3 times faster in the sparse method as the length 

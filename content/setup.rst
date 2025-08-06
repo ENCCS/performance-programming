@@ -28,8 +28,8 @@ you can follow the instructions `HERE <https://www.scaler.com/topics/c/install-c
 For Mac users
 ^^^^^^^^^^^^^
 
-`HERE <https://fastbitlab.com/microcontroller-embedded-c-lecture-10-installing-compiler-gcc-for-host-mac/>`_
-in the guide to install GCC compiler using Homebrew.
+The suggestion is to install Homebrew, a package manager, on Mac and, from there, install GCC as it can be seen in this guide `HERE <https://fastbitlab.com/microcontroller-embedded-c-lecture-10-installing-compiler-gcc-for-host-mac/>`_
+and replicated below.
 
 - Install Homebrew
     - Open the **terminal** on your mac computer
@@ -56,12 +56,12 @@ For Windows users
 
 There are three options to install GCC compilers in your Windows computer.
 
-#. 1. The most recommended option is to install and use the Windows Subsystem for Linux, preferably with Debian or Ubuntu distributions.
+  #. The most recommended option is to install and use the Windows Subsystem for Linux, preferably with Debian or Ubuntu distributions.
   The detailed guidelines are `HERE <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
 
-#. 2. You can install the **MinGW Utility** in your computer.
+  #. You can install the **MinGW Utility** in your computer.
   The detailed guidelines are `HERE <https://linuxhint.com/install-gcc-windows/>`_.
 
-#. 3. You can install **Cygwin**, which gives us a Unix-like environment running on Windows.
+  #. You can install **Cygwin**, which gives us a Unix-like environment running on Windows.
   Then follow steps at `HERE <https://preshing.com/20141108/how-to-install-the-latest-gcc-on-windows/>`_
   to install GCC compilers.
