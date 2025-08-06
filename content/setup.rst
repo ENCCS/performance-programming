@@ -43,7 +43,7 @@ in the guide to install GCC compiler using Homebrew.
     - ``gcc --version``
     - ``which gfortran``
 
-.. tip:: clang and gcc
+.. admonition:: clang and gcc
 
   There are a few things you need to consider when using MacOS:
 
@@ -56,12 +56,12 @@ For Windows users
 
 There are three options to install GCC compilers in your Windows computer.
 
-- 1. The most recommended option is to install and use the Windows Subsystem for Linux, preferably with Debian or Ubuntu distributions.
+#. 1. The most recommended option is to install and use the Windows Subsystem for Linux, preferably with Debian or Ubuntu distributions.
   The detailed guidelines are `HERE <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
 
-- 2. You can install the **MinGW Utility** in your computer.
+#. 2. You can install the **MinGW Utility** in your computer.
   The detailed guidelines are `HERE <https://linuxhint.com/install-gcc-windows/>`_.
 
-- 3. You can install **Cygwin**, which gives us a Unix-like environment running on Windows.
+#. 3. You can install **Cygwin**, which gives us a Unix-like environment running on Windows.
   Then follow steps at `HERE <https://preshing.com/20141108/how-to-install-the-latest-gcc-on-windows/>`_
   to install GCC compilers.

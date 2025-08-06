@@ -27,7 +27,8 @@ and its implementations.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   
+   :caption: Before The Lesson
+
    setup
 
 .. toctree::
@@ -40,20 +41,13 @@ and its implementations.
    architecture
    tuning
 
-.. csv-table::
-   :widths: auto
-   :delim: ;
-
-   1h 30min ; :doc:`algorithms`
-   1h 45min ; :doc:`compilers`
-   4h       ; :doc:`architecture`
-   4h       ; :doc:`tuning`
-
 .. toctree::
    :maxdepth: 1
    :caption: Reference
+   :hidden:
 
    quick-reference
+   glossary
    guide
 
 
