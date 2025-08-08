@@ -694,14 +694,14 @@ may be removed.
   int global; 
 
   int foo(void) {
-  int i;
-  i = 1;
-  global = 1; 
-  global = 2;
-  return;
-  global = 3;
-  return 0;
-}
+    int i;
+    i = 1;
+    global = 1; 
+    global = 2;
+    return;
+    global = 3;
+    return 0;
+  }
 
 The code can be enhanced even further via dead code elimination by noticing that only the last value of ``global`` is
 the only one that matters before the function returns. In similar way, ``i`` is not used in the
@@ -712,9 +712,9 @@ scope of that function and therefore can be removed as well.
   int global; 
 
   int foo(void) {
-  global = 2;
-  return;
-}
+    global = 2;
+    return;
+  }
 
 While the examples above are relatively trivial, elimination of unreachable code, especially when automatically done
 by the compiler, can be especially relevant in large code bases where it is not necessarily obvious that the code will not be 

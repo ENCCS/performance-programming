@@ -21,6 +21,13 @@ techniques and how to adapt code to get the best performance from them.
   architecture" often devote most of the space to discussions about micro
   architecture.
 
+.. tip:: 
+  While this lesson does not have many practical concepts, you can play with architecture simulators such
+  as `"Gem5" <https://gem5.org>`_. (open source) and `"Intel Simics" <https://www.intel.com/content/www/us/en/developer/articles/tool/simics-simulator.html>`_ 
+  (proprietary, but free for researchers) that allows you to work with memory hierarchies and different CPU features, such as prefetching
+  and multicore, while running your own program, and therefore being able to see the performance of a code in more detail.
+
+
 Introduction to computer architecture
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -293,7 +300,7 @@ can latch on to will often be mispredicted, however.
    
      - Loop ending branches for long trip count loops (almost always taken).
      
-     - Branches that check for uncommon conditions (error checking, ...)
+     - Branches that check for uncommon conditions (error checking).
      
      - Branches that behave consistently during each phase of the program.
    
@@ -1245,14 +1252,69 @@ There are a few things to think about when it comes to programming for prefetchi
   several prefetches for the same cache line, something that might require loop
   unrolling.
 
-.. admonition:: Simulating the behaviour
-  If you want to dive deeper in this lesson, there are architecture simulators such
-  as `"Gem5" <https://gem5.org>`_. (open source) and `"Intel Simics" <https://www.intel.com/content/www/us/en/developer/articles/tool/simics-simulator.html>`_. (proprietary, but free for researchers) that allows you
-  to work with memory hierarchies and different CPU features, such as prefetching
-  and multicore, while running your own program, and therefore being able to see the performance of the code in more detail.
+.. admonition:: How do I prefetch in practice?
+
+  There are several ways on how to make use of the prefetching, some that uses the built-in
+  processor intrisics or with built-in functions from the compilers. A textbook example of prefetching is doing a sum 
+  of certain elements in an array. Here is the code without any prefetching:
+
+  .. code-block:: C
+    double sum_without_prefetch(int* arr, int size) {
+      double sum = 0;
+      for (int i = 0; i < size; i += STEP/sizeof(int)) {
+          sum += arr[i];
+      }
+      return sum;
+    }
+  
+  In this case, the stride (``STEP``) should be 64 bytes (i.e., the size of our cache line), and our array has a reasonable large ``size``.
+  Given that ``sizeof(int)`` will likely return 4 bytes, we will have a sum of ``arr[0] + arr[16] + arr[32] + arr[48]...``, and so on.
+
+  We can start implementing prefetching by using the built-in function ``_mm_prefetch``in Intel/AMD processors:
+
+  .. code-block:: C
+
+    double sum_with_prefetch(int* arr, int size) {
+        double sum = 0;
+        for (int i = 0; i < size; i += STEP/sizeof(int)) {
+            // Prefetch next cache line before we need it
+                if (i + 32 < size) {  // Prefetch 32 elements ahead
+                    _mm_prefetch(&arr[i + 32], _MM_HINT_T0);
+                }
+            sum += arr[i];
+        }
+        return sum;
+    }
+
+  One need to also include the ``xmmintrin.h`` header for the code to work, and this instruction is specific to x86/x86_64 processors with
+  Streaming SIMD Extensions (SSE) support (i.e., all modern Intel/AMD processors). This would not work in an ARM or
+  RISC-V processors, for example. An alternative (and similar effect in this case) is to use the function ``__builtin_prefetch(&arr[i + 32], 0, 3);``, 
+  which is compiler-specific and will generate the code depending on the detected platform. Both functions come with parameters 
+  that also establishes what the prefetcher is supposed to do.
+
+  In the code above, ``_MM_HINT_T0`` prefetches the targeted address into the L1 cache (highest temporal locality), 
+  which also makes it available in L2/L3 as part of the cache hierarchy. Here, when processing ``arr[i]``, the code prefetches ``arr[i + 32]`` 
+  (32 integers, or 128 bytes), ahead of the current position. This is two cache lines ahead, which helps hide main memory latency by 
+  ensuring that the data is already in cache by the time it is accessed in future iterations. 
+  
+  The results are tangible especially for large sizes of the array:
+
+  .. figure:: with_vs_without_prefetch.png
+     :scale: 50%
+
+  In other problems, the exact offset to prefetch depends on memory latency, CPU speed, and stride size, and should be tuned and benchmarked for best results.
 
 Further reads
 ^^^^^^^^^^^^^^^
 
 - David A. Patterson, John L. Hennessy. "Computer Organization and Design (RISC-V Edition)". MK Publishers. 2021.
 - Christos Kozyrakis, John L. Hennessy and David A. Patterson. "Computer Architecture: A Quantitative Approach". MK Publishers. 2025.
+
+
+## 10K
+Without: 0.000002
+With: 0.000001
+
+array_size = [10000, 100000, 1000000, 10000000, 100000000, 1000000000]
+without = [0.000002, 0.000009, 0.000227, 0.002218, 0.045130, 4.279021 ]
+with = [0.000001, 0.000008, 0.000207, 0.001817, 0.023164, 0.262715 ]
