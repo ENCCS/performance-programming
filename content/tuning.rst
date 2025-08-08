@@ -19,7 +19,7 @@ advanatges as an example, including:
   neural network architecture is called, consist almost entirely of matrix
   multiplications.
 
-   .. admonition:: The Roofline model
+.. admonition:: The Roofline model
 
    There are several ways to measure performance and, in this course, we have mostly used 
    execution time as a reference. In practice, however, time is not always the best metric for analysis, 
