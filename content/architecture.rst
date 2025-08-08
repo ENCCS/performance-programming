@@ -1300,7 +1300,6 @@ There are a few things to think about when it comes to programming for prefetchi
   The results are tangible especially for large sizes of the array:
 
   .. figure:: with_vs_without_prefetch.png
-     :scale: 50%
 
   In other problems, the exact offset to prefetch depends on memory latency, CPU speed, and stride size, and should be tuned and benchmarked for best results.
 
@@ -1309,12 +1308,3 @@ Further reads
 
 - David A. Patterson, John L. Hennessy. "Computer Organization and Design (RISC-V Edition)". MK Publishers. 2021.
 - Christos Kozyrakis, John L. Hennessy and David A. Patterson. "Computer Architecture: A Quantitative Approach". MK Publishers. 2025.
-
-
-## 10K
-Without: 0.000002
-With: 0.000001
-
-array_size = [10000, 100000, 1000000, 10000000, 100000000, 1000000000]
-without = [0.000002, 0.000009, 0.000227, 0.002218, 0.045130, 4.279021 ]
-with = [0.000001, 0.000008, 0.000207, 0.001817, 0.023164, 0.262715 ]
