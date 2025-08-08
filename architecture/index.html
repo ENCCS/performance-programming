@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture &mdash; Performance Engineering  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_lesson.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/term_role_formatting.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/overrides.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Tuning" href="../tuning/" />
+    <link rel="prev" title="Compilers" href="../compilers/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            Performance Engineering
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Before The Lesson</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilers/">Compilers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-to-computer-architecture">Introduction to computer architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instruction-level-parallelism">Instruction level parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#out-of-order-issue">Out of order issue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-hierarchies">Memory hierarchies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cache-organization">Cache organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multi-level-caches">Multi level caches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#caches-and-stores">Caches and stores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#caches-and-instruction-level-parallelism">Caches and instruction level parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prefetching">Prefetching</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#virtual-memory">Virtual memory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#measuring-the-cache">Measuring the cache</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#latency-measurements">Latency measurements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#streaming-reads">Streaming reads</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#programming-for-the-cache">Programming for the cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#blocking">Blocking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#programming-for-prefetch">Programming for prefetch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#further-reads">Further reads</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tuning/">Tuning</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Performance Engineering</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/content/blob/main/content/architecture.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading"></a></h1>
+<p>This part gives an overview of computer architecture including common implementation
+techniques and how to adapt code to get the best performance from them.</p>
+<div class="admonition-architecure-instruction-set-architecure-and-micro-architecture admonition">
+<p class="admonition-title">Architecure, instruction set architecure, and micro architecture</p>
+<p>The <em>instruction set architecture</em>, or <em>ISA</em>,
+of a machine defines the semantics of machine
+programs. It is the only information needed to produce correct programs.</p>
+<p>The same ISA can be implemented in many different ways, for instance
+with or without caches and with different types and sizes of caches.
+These implementation choices, at least in their overall structure,
+is often referred to as the <em>micro architecture</em> of the machine.</p>
+<p>This leaves the term <em>architecture</em> somewhat vague. Sometimes, as when one
+talks about “the x86 architecture”, it refers to the ISA. On the other
+hand, courses and books on “computer
+architecture” often devote most of the space to discussions about micro
+architecture.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>While this lesson does not have many practical concepts, you can play with architecture simulators such
+as <a class="reference external" href="https://gem5.org">“Gem5”</a>. (open source) and <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/tool/simics-simulator.html">“Intel Simics”</a>
+(proprietary, but free for researchers) that allows you to work with memory hierarchies and different CPU features, such as prefetching
+and multicore, while running your own program, and therefore being able to see the performance of a code in more detail.</p>
+</div>
+<section id="introduction-to-computer-architecture">
+<h2>Introduction to computer architecture<a class="headerlink" href="#introduction-to-computer-architecture" title="Permalink to this heading"></a></h2>
+<p>A computer is a device that executes a <em>machine code program</em>, with each major family
+of processors having its own <em>machine language</em> or <em>architecture</em>. A machine code
+program is a sequence of <em>instructions</em>, which are executed one at a time and by
+default in the order they occur in the program.</p>
+<p>Every architecture includes
+instructions that redirects execution to a different part of the program rather than
+the next instruction, thus changing the flow of control. Some instructions, called
+<em>conditional branches</em> evaluate a (data dependent) condition, jumping to another
+part of the program if the condition is satisfied, otherwise proceeding to the
+following instruction. These correspond to, and are used to implement, control flow
+statements like <code class="docutils literal notranslate"><span class="pre">if</span></code>, <code class="docutils literal notranslate"><span class="pre">for</span></code>, and <code class="docutils literal notranslate"><span class="pre">while</span></code> in high level languages.</p>
+<p>Other common kinds of instruction include arithmetic on integers and floating point
+numbers of different sizes, logical operations such as <strong>and</strong>, <strong>or</strong>, and <strong>xor</strong>.
+There are typically also instructions for moving data around.</p>
+<p>Instructions work with data stored in <em>memory</em>, <em>registers</em>, or included in the
+instruction itself. Most of the data used by a program is stored in the main memory
+which contains up to many billions of data items and is similar to a large array.
+Each location in memory has its own unique <em>address</em> (corresponding to an array index)
+and is read or written to
+by memory referencing instructions using this address.
+Main memory is almost always implemented using separate chips rather than being
+included in the same chip (die) containing the processor itself. Thus the same (type of)
+processor can be used together with different amounts of memory.</p>
+<p>In contrast to main memory, the processor registers are an integral part of the
+processor and are implemented on the same die. Architectures feature anywhere from
+a few (old variants of the x86 architecture) to a few hundred (the IA64 or Itanium
+architecture) registers.</p>
+<p>Each processor register contains a single item of data. In current architectures,
+registers are
+either 32 or 64 bits in size, so a register can hold a single integer or floating
+point number. In most architectures, the register set is divided into general purpose
+registers containing integers (including memory addresses) or similar data, and
+floating point registers. Since the introduction of MMX in 1997, there has also been
+registers containing vectors of scalar data elements. These <em>SIMD</em> registers are
+typically larger still, with sizes up to 512 bits.</p>
+<div class="admonition-the-x86-register-set admonition">
+<p class="admonition-title">The x86 register set</p>
+<p>Recent variants of the venerable x86 architecture feature the following
+general purpose registers, all 64 bits:</p>
+<p>RAX, RCX, RDX, RBX, RSP, RBP, RSI, RDI, R8, R9, R10, R11, R12, R13, R14, R15</p>
+<p>The floating point/SIMD register set depends on architecture variant in
+a rather fine grained way. The code examples for this lesson were developed
+on a machine supporting the AVX256 variant which features the following
+SIMD registers, all 256 bits:</p>
+<p>YMM0 - YMM15</p>
+<p>Intel has kept the x86 architecture family largely backwards compatible, and
+as there is a need to work on older and narrower data types, old assembly
+syntax is used to refer to these. Thus, for 32 bit operations one
+sees EAX rather than RAX, ECX rather than RCX and so on. The new registers
+are R8D for the lower half of R8 and so on.</p>
+</div>
+</section>
+<section id="instruction-level-parallelism">
+<h2>Instruction level parallelism<a class="headerlink" href="#instruction-level-parallelism" title="Permalink to this heading"></a></h2>
+<p>Logically, the processor executes the program one instruction after another,
+in general according to the following steps:</p>
+<ol class="arabic simple">
+<li><p>Fetch (read) the instruction from memory.</p></li>
+<li><p>Decode the instruction.</p></li>
+<li><p>Fetch operands from memory and/or registers</p></li>
+<li><p>Do the operation.</p></li>
+<li><p>Write the result to memory or registers.</p></li>
+</ol>
+<p>In practice, step 3 may contain several sub steps if it involves a memory access
+since in that case an address must often be read from a register or even computed,
+for instance by adding the value in a register to a constant included in the
+instruction.</p>
+<p>The address to read the next instruction from in step 1 is typically kept in a
+register called the <em>program counter</em> (or PC). A branch (control transfer
+instruction) writes the address of the branch target into the PC while other
+instructions just increment the PC by the size of the instruction.</p>
+<p>A machine that did these steps for one instruction at a time would be quite slow,
+and would also utilize the various hardware components of the processor very
+inefficiently since for instance the instruction decoder would only be used for
+a fraction of the time taken to execute an instruction. Thus all modern processors
+overlap the execution of multiple instructions in an assembly-line-like fashion,
+a techique known as <em>pipelining</em>.</p>
+<p>When one instruction writes its result (step 5), the next instruction executes
+(step 4), the one after that reads its operands (step 3), and so on. Hence the
+processor will at any time work on several instructions in parallel.</p>
+<div class="admonition-exercise exercise important admonition" id="exercise-0">
+<p class="admonition-title">Exercise</p>
+<p>Take a moment to think about the challenges posed by this approach when it
+comes to implementing exactly the same behaviour as an implementation that
+executes all the steps for one instruction before starting with the next one.</p>
+</div>
+<div class="admonition-solution solution important dropdown admonition" id="solution-0">
+<p class="admonition-title">Solution</p>
+<p>There are problems with dependencies. Each instruction must execute <em>as if</em>
+all previous instructions have already executed and no subsequent ones have.
+This creates several challenges:</p>
+<ul class="simple">
+<li><p>If a branch instruction updates the PC in the last step (step 5), four
+instructions that follow the branch in memory but should not be executed
+are already in various stages of processing. Care must be taken so that
+they do not affect the execution of instructions at the branch target.</p></li>
+<li><p>If one instruction computes a value and writes it to a register
+and the next uses that value, the second instruction will read that
+register (step 3) while the first performs its operation (step 4)
+and before the new value is written to the register (step 5), thus
+reading the old value, which was not the intention.</p></li>
+</ul>
+</div>
+<div class="admonition-dependencies admonition">
+<p class="admonition-title">Dependencies</p>
+<p>Dependencies constrain the order a set of operations can be executed in
+by requiring that one operation be executed after (or in some cases not before)
+another. There are three main kinds of dependencies that are related to data:</p>
+<ul>
+<li><p>An operation that uses the result of an earlier one must wait until
+the result of the earlier operation is available:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The multiplication cannot start until the addition is finished.</p>
+<p>This is called a <em>true data dependence</em> and there is no way around it.</p>
+</li>
+<li><p>An operation may not overwrite an input to an earlier operation, so
+it cannot start before that earlier operation:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The multiplication must not write its result before the addition
+has read its operand.</p>
+<p>This is called an <em>anti-dependence</em> since the read is before the write,
+in contrast to the first case. Anti dependencies can sometimes be removed
+by <em>renaming</em>, rewriting the program to use another variable either
+for the read (and earlier writes) or for the write (and later reads).</p>
+</li>
+<li><p>An operation may not overwrite a later write so it must finish before
+the later operation finishes:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The addition may not make its write after the multiplication makes its
+write.</p>
+<p>This is called an <em>output dependence</em> and may seem silly; why do the
+addition at all? But if the two operations are array accesses, for instance,
+it may be difficult to tell if they are to the same element.</p>
+<p>Often, there will be a use of <code class="docutils literal notranslate"><span class="pre">w</span></code> in between the two writes, and then
+we will have a dependence from the addition to the use and from the use to
+the multiplication, subsuming the output dependence which becomes redundant
+and can be ignored.</p>
+</li>
+</ul>
+<p>These dependencies turn up both in the area of compilers and in the area of
+computer architecture where they sometimes are referred to as <em>hazards</em>.
+The following table gives the correspondance:</p>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Names of dependencies</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>In compiler</p></th>
+<th class="head"><p>In architecture</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>True data dependence or flow dependence</p></td>
+<td><p>Read After Write, RAW</p></td>
+</tr>
+<tr class="row-odd"><td><p>Anti dependence</p></td>
+<td><p>Write After Read, WAR</p></td>
+</tr>
+<tr class="row-even"><td><p>Output dependence</p></td>
+<td><p>Write After Write, WAW</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Modern processors go a lot further than this simple model of pipelining. First,
+some of the five steps may be divided into several sub steps, and these sub
+steps are them selves pipelined, increasing the number of stages to close to
+twenty in practice. While all kinds of instructions flow through the early
+part of the pipeline (instruction fetch and decode, steps 1 and 2) in the same
+way, reading operands from registers is much faster than reading them from
+memory, so step 3 will have different number of stages in these cases.</p>
+<p>The same holds for the execution stage, where an integer add will typically be
+a single stage while a floating point add might be three or four stages since it
+is a much more complicated operation.</p>
+<p>Second, not only is the pipeline deep, it is also wide, with multiple instructions
+flowing through it “side by side”. On every cycle, multiple instructions are
+fetched (up to four or five in current processors). This feature was previ</p>
+</section>
+<section id="out-of-order-issue">
+<h2>Out of order issue<a class="headerlink" href="#out-of-order-issue" title="Permalink to this heading"></a></h2>
+<p>In order to understand how a modern x86 processor core executes instructions, it is
+useful to think about the <em>(dynamic) instruction stream</em> which is the sequence of
+program counter values that we would see in a one-thing-at-a-time non pipelined
+processor as it executes a program. Because of conditionals, the instruction stream
+of a program may not contain all the (static) instructions in it, and because of
+loops and procedures, it can be very much longer. If you record the instruction stream
+as a data structure, you get a <em>trace</em> of the execution.</p>
+<p>One way of thinking about the instruction stream is as a program where all loops
+were unrolled and all subprograms inlined and every (unrolled or inlined) instance
+of a conditional is correctly predicted, as if by an oracle, and the non-taken
+alternative eliminated.</p>
+<p>A modern x86 implementation (the same holds for high end ARM as well) is divided
+into two parts:</p>
+<ul class="simple">
+<li><p>The front end, which fetches and decodes instructions from memory.</p></li>
+<li><p>The back end, which accepts instructions from the front end and executes them.
+Here is where we find for instance the functional units and the registers of
+the processor.</p></li>
+</ul>
+<p>The front end and the back end are kept as independent as possible. The ideal
+would be that the front end simply feeds the back end the dynamic instruction
+stream with no synchronization. Conditional branch instructions are an obvious
+problem here: comparisons depend on data and are executed by the back end and
+<em>indirect</em> branches transfer control to an address stored in a register or in memory
+(think of jump tables for implementing switch statements or subroutine returns).</p>
+<p>One possibility would be for the front end to stop fetching instructions when a
+(conditional or indirect) branch is encountered. That would lead to a dramatic
+loss of performance since branches often makes up ten percent or more of the
+instruction stream and the delay from when the back end has decided if and to where
+control should be transferred, until the new instructions can be executed by the
+back end is often on the order of twenty cycles.</p>
+<p>Instead, the front end uses various forms of <em>branch prediction</em> to be able
+to continue fetching instructions based on the recent history of the various (static)
+branches. Branch prediction has evolved dramatically over the years and now
+provides correct predictions almost always for programs dominated by <code class="docutils literal notranslate"><span class="pre">for</span></code> loops.
+Branches that do not behave according to a simple pattern that the branch predictor
+can latch on to will often be mispredicted, however.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Types of branches that are easy to predict:</p>
+<ul class="simple">
+<li><p>Branches that very often do the same thing as last time it was executed.</p>
+<ul>
+<li><p>Loop ending branches for long trip count loops (almost always taken).</p></li>
+<li><p>Branches that check for uncommon conditions (error checking).</p></li>
+<li><p>Branches that behave consistently during each phase of the program.</p></li>
+</ul>
+</li>
+<li><p>Loop ending branches for loops with the same, short, trip count (the
+branch predictor keeps track of the number of taken branches between each
+not taken).</p>
+<ul>
+<li><p>Branches that are taken every other time.</p></li>
+</ul>
+</li>
+<li><p>Subroutine returns; the branch predictor keeps track of the (topmost part
+of) the return stack.</p></li>
+<li><p>Indirect branches that go to the same target several times in a row.</p></li>
+</ul>
+<p>Note also that if there are many branches in the program, those that are
+infrequently executed will probably have their history knocked out of the
+branch predition tables (they are a kind of caches) so they will get no
+predictions.</p>
+</div>
+<p>The back end then executes the instruction stream using as much parallelism
+as possible. Current x86 back ends can execute as much as four or five
+instructions per cycle, but since some of the functional units (memory access
+and floating point operations, in particular) are pipelined, the back end
+needs to find somewhere around 10 to 20 independent operations to maintain
+a flow of four to five instructions per cycle.</p>
+<div class="admonition-latency-and-throughput admonition">
+<p class="admonition-title">Latency and throughput</p>
+<p>These concept play important roles in computer architecture:</p>
+<dl>
+<dt>Latency</dt><dd><p>The shortest possible time between the start of an operation and the start
+of an operation that depends on the first one (typically because it needs
+the result of the first operation). The latency typically depends on the
+first operation but may in some cases also depend on the second.</p>
+</dd>
+<dt>Throughput</dt><dd><p>How many operations (of some type) that can be executed per unit time. An
+operation can belong to several types, in which case the lowest limit applies.</p>
+<p>For instance, a processor may be able to execute four instructions per cycle
+but only two memory references, so if every instruction in the instruction
+stream includes a memory reference, the resulting throughput is only two
+instructions per cycle.</p>
+<p>Throughput depends on both the number of units available for executing the
+operation and how often a unit accepts a new operation. Most compute units
+are fully pipelined and accept a new operation every cycle, but for instance
+divide units tend not to be pipelined and may thus only accept a new operation
+when the previous one is finished, which may take perhaps ten or more cycles.</p>
+</dd>
+</dl>
+<p>If we have an operation with latency <span class="math notranslate nohighlight">\(L\)</span> and throughput <span class="math notranslate nohighlight">\(T\)</span> we will
+need <span class="math notranslate nohighlight">\(L \times T\)</span> independent operations to fully utilize the resources
+of the machine. For instance, if we can do two floating point operations at a
+time and their latency is four cycles, we need at least eight independent
+floating point operations to keep those units busy.</p>
+<p>Within the processor core, the clock cycle is the most common unit for measuring
+time since everything inside happens in sync with the clock. But some
+interesting things are driven by other clocks. In particular, this is true of
+memory references which depend on how fast the DRAM chips are clocked.
+This clock typically runs on a constant frequency while the core clock is
+varied by DVFS to balance performance, energy consumption and heat generation.
+Hence it is often useful to think about the memory in terms of (nano) seconds rather
+than (core) cycles.</p>
+</div>
+<p>The back end handles this parallelism using an instruction scheduling unit in
+the processor hardware. This unit stores nformation about instructions that have
+been delivered by the front end but not yet executed. For each instruction, the
+scheduler keeps track of the instructions it depends on. For each source operand
+that is not yet ready, the scheduler keeps track of which instruction will
+produce the value. This handles the true data dependencies; we will get to the
+anti and output dependencies later.</p>
+<p>When an instruction is about to produce its result, all instructions (in the
+scheduler) which will use that result checks to se if it was the last thing they
+were waiting for. If it was, they become ready for execution. There might be
+more ready instructions that needs a certain kind of functional unit (say, a floating point
+multiplier) than there are units of that type available; in that case some
+instructions have to wait. When an instruction is sent for execution, its entry in
+the scheduler can be reused.</p>
+<p>The scheduler is a rather expensive (large and power hungry) part of the processor,
+so there is a trade off between its cost and its size and flexibility. For instance,
+entries may be general so that they may contain any instruction or specialized
+with respect to the functional units it serves.</p>
+<p>If we think about how this kind of back end executes the instruction stream,
+we can note that there is in general an early part of the stream that is completely
+processed. Then comes the earliest not finished instruction and a mix of
+executed and not executed instructions until we get to the newest (latest)
+instruction to have been delivered by the front end. Then comes the instructions
+that have not yet reached the back end.</p>
+<p>We will call the middle portion of the instruction stream the <em>current instruction
+window</em>. The significance of the window is that the window moves through the
+instruction stream in order; instructions enter the window in the order they occur
+in the stream and they exit in that same order. Within the window, however, they
+will in general execute out-of-order with respect to stream order.</p>
+<p>It should come as no surprise that the account up to now is simplified, so we
+will discuss briefly a couple of complications. The first one is that we sometimes
+execute instructions that should not be executed.</p>
+<ul class="simple">
+<li><p>The front end may have fetched the wrong instructions due to branch mispredictions.</p></li>
+<li><p>An earlier instruction in the stream may have had an exception, such as an integer
+divide by zero or some form of memory exception. Neither of these can be
+detected by the front end.</p></li>
+</ul>
+<p>Recall that we want our high performance implementation to execute the program
+exactly as if it handled each instruction in order with no overlap. For this to
+be possible we need to be able to “undo” the execution of instructions until we know that
+it should really have been executed. We know this when all earlier instructions
+in the instruction stream has executed without branch mispredictions or exceptions.</p>
+<p>One way of thinking about this is that an instruction that has executed in the
+functional units needs to appear to be executed to subsequent instructions within
+the instruction window, but appear not-yet-executed to “the outside world”. Only
+when the instruction exits the current instruction window is its execution made
+permanent. This is known as a <em>commit</em>, or in Intel terminology, <em>retirement</em>.</p>
+<p>For instructions that have not yet retired (so they are still part of the instruction
+window), this means:</p>
+<ul>
+<li><p>No values in registers or memory may be overwritten.</p></li>
+<li><p>No exceptions can be taken; maybe we should not have executed the excepting
+instruction. Consider the following, where <code class="docutils literal notranslate"><span class="pre">d</span></code> is not often 0:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">d</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The branch predictor will guess that the division should be performed, so in the
+rare cases when <code class="docutils literal notranslate"><span class="pre">d</span></code> is indeed 0, the division might be performed while the
+branch condition is evaluated. So the exception must be postponed until the
+branch is retired.</p>
+</li>
+</ul>
+<p>This problem is solved by a combination of techniques:</p>
+<dl>
+<dt>Reorder buffer</dt><dd><p>Every instruction in the instruction window has an entry in a (circular) reorder
+buffer. The reorder buffer contains all information that is needed when the
+instruction is either undone or retired.</p>
+<p>Note that the reorder buffer contains both not yet executed instructions, just
+like the scheduler, but also those instructions that are executed but not retired
+which are not present in the scheduler. This is because a reorder buffer entry is
+much cheaper than a scheduler entry.</p>
+</dd>
+<dt>Register renaming</dt><dd><p>Under this scheme, the register numbers in the instructions do not correspond
+directly to the hardware register addresses. Instead, register numbers from the
+instructions are used to look up an indirection table in the instruction decoder.
+On every instruction that has a destination register, a free physical register
+is allocated and the mapping table is updated. The scheduler hardware only uses
+physical register numbers.</p>
+<p>On a branch misprediction or exception, the mapping table from the
+appropriate point in the instruction stream (which will be within the instruction
+window) can be recomputed from the reorder buffer.</p>
+</dd>
+<dt>Store buffers</dt><dd><p>Store instructions write their data and addresses to store buffers. Load
+instructions check the store buffers corresponding to earlier stores.</p>
+<ul class="simple">
+<li><p>If the address of the load matches the address of the store and there
+is data in the store buffer, the load returns the data (store to load
+forwarding). Note that this only works when the store affects all bytes
+targeted by the load; for instance, if the size of the store was a single
+byte it cannot be forwarded to a load asking for two or more bytes.</p></li>
+<li><p>If there is no data (because the instructiion that would produce it has
+not delivered its result yet), the load has to wait.</p></li>
+<li><p>If there is any previous store instruction where the address is not yet
+computed, all subsequent loads must wait.</p></li>
+</ul>
+</dd>
+</dl>
+<p>All of these memory structures (physical registers, scheduler and reorder buffer
+entries, and
+store buffers) may be fully used so that none can be allocated. In fact, that is
+how “not enough instruction level parallelism” typically manifests itself.</p>
+<p>Register renaming and store buffers also eliminate many anti and output dependencies
+(all, in the case of register renaming) so that the instructions in the instruction
+window can be executed mostly in true data dependeny order.</p>
+<p>The last complication that we must deal with here is complex instructions. Some
+architectures, like the x86, contain instructions that do more than one major piece
+of work. The most common example is the fact that x86 compute instructions can get
+one of their operands from memory. This is basically a three step process:</p>
+<ol class="arabic simple">
+<li><p>Compute the address (as a sum of up to two registers and a constant offset
+contained in the instruction).</p></li>
+<li><p>The memory access.</p></li>
+<li><p>The operation (for instance a floating point addition).</p></li>
+</ol>
+<p>The almost universal way that x86 implementations deal with this is to divide such
+an instruction into multiple <em>micro operations</em> or <em>uops</em>. The scheduler then does
+not schedule instructions, but uops (many instructions will of course map to a single
+uop). This has several benefits, as compared to having the scheduler work with
+entire instructions:</p>
+<ul class="simple">
+<li><p>The memory access uop does not need to wait for the non-memory operand for the
+operation (floating point add). This will in general allow it to start earlier,
+thus getting the instruction completed sooner.</p></li>
+<li><p>If the scheduler sends the (in this case whole) instruction for execution (because
+the address computation and memory access units are free and all source operands
+are available) and then the operation
+(floating point add) needs to somehow wait if the floating point adder is not
+available. Since memory is almost always cached (see next section), the scheduler
+does not
+know how long the memory access will take, so it cannot reserve the floating
+point adder when it starts the memory access.</p></li>
+</ul>
+<p>All in all, it is better to keep the operations handled by the scheduler simple
+and have somewhat more of them rather than trying to do more with each operation.</p>
+</section>
+<section id="memory-hierarchies">
+<h2>Memory hierarchies<a class="headerlink" href="#memory-hierarchies" title="Permalink to this heading"></a></h2>
+<p>It is a truth universally acknowledged, that a computer memory is either large or
+fast. It is also the case that many programs tend to access memory locations that
+they have accessed in the recent past, or memory locations near them. This property
+is called <em>locality</em>, either <em>temporary locality</em> (same locations) or
+<em>spatial locality</em> (nearby locations).</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">unique1</span></code> program (as well as some of the others) from the algorithm
+section shows both temporal and spatial locality.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique1</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Spatial locality: The inner <code class="docutils literal notranslate"><span class="pre">for</span></code> loop accesses the array elements
+sequentially so that on every iteration it accesses an element adjacent to
+an element it accessed on the previous iteration.</p></li>
+<li><p>Temporal locality: The same element <code class="docutils literal notranslate"><span class="pre">a[i]</span></code> is accessed by each iteration
+of the inner <code class="docutils literal notranslate"><span class="pre">for</span></code> loop (since <code class="docutils literal notranslate"><span class="pre">i</span></code> is invariant with respect to that loop).
+Also, all of the <code class="docutils literal notranslate"><span class="pre">a[j]</span></code> accesses in the conditional were
+accessed by the previous iteration of the outer <code class="docutils literal notranslate"><span class="pre">for</span></code> loop. Whether these
+accesses were “recent” or not depends on the size of the array and the
+machine.</p></li>
+</ul>
+</div>
+<p>Locality makes it possible to improve performance by combining a larger, slower,
+memory with a smaller, faster one. We have already seen this concept in the use of
+a few dozen processor registers, together with a main memory containing billions
+of individual locations. But modern machines often have several layers of
+progressively larger and slower memory between the registers and the true main
+memory. All of the layers together are referred to as the <em>memory hierarchy</em> of the
+machine.</p>
+<p>This raises the issue of keeping track of which value is in what memory. When it
+comes to registers, that is typically the job of the compiler. A C or Fortran
+program does not specify which registers should be used for which variables but
+register use is explicit in the machine code.</p>
+<p>For larger memories it is typically either the programmer or the processor hardware
+itself that makes the decision. For instance, when programming a GPU in Cuda, the
+programmer specifies the kind of memory each variable should use. Such memories
+that are visible to the programmer are often called <em>local memories</em> or
+<em>scratchpad memories</em>. If the memory is managed by the hardware, it is called
+a <em>cache</em>.</p>
+<p>For general purpose processors, such as the x86 processors that are found in
+everything from laptops to supercomputers, the memory hierarchy below the processor
+registers is managed by the hardware. The strategy is based on the principle of
+locality discussed above; when a memory location is accessed, its contents is copied
+to the highest level in the memory hierarchy (if it is not already there) so that it
+will be readily available if it is used again soon (temporal locality).</p>
+<p>In practice, a small block of memory containing the interesting
+location is copied, both to amortize the cost of keeping track of memory locations
+over somewhat larger blocks, and to exploit spatial locality. Such blocks are
+called <em>cache lines</em>; today a common size is 64 bytes. The cache lines are naturally
+aligned, so the first cache line in memory covers addresses 0 to 63, the next one
+addresses 64 to 127 and so on.</p>
+<section id="cache-organization">
+<h3>Cache organization<a class="headerlink" href="#cache-organization" title="Permalink to this heading"></a></h3>
+<p>So, how does the hardware know if a particular cache line is in the cache or not?
+Or, differently put, how are caches implemented?</p>
+<p>Consider a very small and simple cache that contains a single 64-byte cache line
+at a time. That cache needs to store 64 bytes of data, but it also needs to store
+the address of the line currently in the cache as well as a single bit indicating
+whether there is a line there at all (for instance, directly after power up no
+cache line will be present). It will look something like the following:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Valid bit</p></td>
+<td><p>Address (64 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Given that the cache lines are naturally aligned, a 64-bit address will look
+like this:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Cache line number (58 bits)</p></td>
+<td><p>Byte offset (6 bits)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Since all accesses to <em>any</em> byte in the cache line will hit, the lower six bits
+do not matter and only the cache line number needs to be stored and compared. So
+we will have this instead:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Valid bit</p></td>
+<td><p>Line number (58 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Now, this is an awfully small cache. Typical caches store from several hundred to
+several hundred thousand lines. One possible solution is to just replicate the
+structure of the single-line cache to a larger number of lines, forming a
+<em>fully associative</em> cache. All of the lines are searched in parallel, each with
+its own address comparator, and we have a hit if we hit in any of the line-caches.
+In practice, this design leads to two major problems:</p>
+<ul class="simple">
+<li><p>The complexity of that many parallel comparator circuits is prohibitive for
+large caches. Some smaller structures, such as the store buffers mentioned
+above in relation to out of order issue, do have this fully associative
+quality. The Kaby Lake core of the Core i7-8550U has 56 store buffers.</p></li>
+<li><p>When we have a cache miss we need to choose in which of these single-line caches
+to place the new line. The strategy for doing that is called a <em>replacement policy</em>.
+Making a good decision is very important for minimizing
+the number of misses, and computing a good choice among so many alternatives is
+also very computationally expensive.</p></li>
+</ul>
+<p>Instead, we can be inspired by the concept of hash tables. If we compute an index
+from the line number part of the address we can use it to access a conventional
+memory with the following lay out:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Valid bit</p></td>
+<td><p>Line number (58 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+<tr class="row-even"><td><p>Valid bit</p></td>
+<td><p>Line number (58 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>…</p></td>
+</tr>
+<tr class="row-even"><td><p>Valid bit</p></td>
+<td><p>Line number (58 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+</tbody>
+</table>
+<p>We will use the index to find a single item, check the line number of that item
+and if we have a match we get a hit. If we have a miss, we will replace this item,
+at this index, since that is the index computed from the address of the access.</p>
+<p>The typical way to compute the index is to take the lowest bits of the line number
+part of the address. So if we for instance have a 32 kilobyte cache
+we will have a new division of an address:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td colspan="2"><p>Cache line number (58 bits)</p></td>
+<td><p>Byte offset (6 bits)</p></td>
+</tr>
+<tr class="row-even"><td><p>Tag (49 bits)</p></td>
+<td><p>Index (9 bits)</p></td>
+<td><p>Byte offset (6 bits)</p></td>
+</tr>
+</tbody>
+</table>
+<p>In this case, only the tag part of the address needs to be stored, since the index
+part is implicit in which location in the cache that we are accessing, giving
+the following organization of the cache hardware:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Valid bit</p></td>
+<td><p>Tag (49 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+<tr class="row-even"><td><p>Valid bit</p></td>
+<td><p>Tag (49 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>…</p></td>
+</tr>
+<tr class="row-even"><td><p>Valid bit</p></td>
+<td><p>Tag (49 bits)</p></td>
+<td><p>Data (64 bytes)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The cache now only needs a single comparator together with a conventional memory
+array that can be implemented very efficiently on a VLSI chip. In addition, we
+have eliminated the choice of where to write the new line after a miss.</p>
+<p>This kind of cache is called a <em>direct mapped</em> cache. These were popular among
+early RISC processors that did not have room
+for the cache on the same die as the processor since it could be implemented using
+standard SRAM chips.</p>
+<p>The drawback of a direct mapped cache is that if the program uses two addresses
+that are a multiple of the cache size from each other (they are equal modulo
+the cache size), both cannot be in the cache at the same time since they will
+have identical index.</p>
+<p>On the other hand, a direct mapped cache can keep any contiguous sequence of
+cache lines (up to the size of the cache, of course) in the cache.</p>
+<p>To mitigate this problem, the most poular organization today is called a <em>set
+associative</em> cache. This is essentially a number of direct mapped caches accessed in
+parallel. Each of these direct mapped caches is called a <em>way</em> and a cache with
+four ways is called a four way set associative cache. The items with the same index
+(one per way) is called a <em>set</em>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head" colspan="3"><p>Way 0</p></th>
+<th class="head"></th>
+<th class="head" colspan="3"><p>Way W-1</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Set 0</strong></p></td>
+<td><p>Valid</p></td>
+<td><p>Tag</p></td>
+<td><p>Data</p></td>
+<td><p>…</p></td>
+<td><p>Valid</p></td>
+<td><p>Tag</p></td>
+<td><p>Data</p></td>
+</tr>
+<tr class="row-odd"><td><p>…</p></td>
+<td colspan="3"><p>…</p></td>
+<td><p>…</p></td>
+<td colspan="3"><p>…</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Set N-1</strong></p></td>
+<td><p>Valid</p></td>
+<td><p>Tag</p></td>
+<td><p>Data</p></td>
+<td><p>…</p></td>
+<td><p>Valid</p></td>
+<td><p>Tag</p></td>
+<td><p>Data</p></td>
+</tr>
+</tbody>
+</table>
+<p>With the set associativity, the issue of replacement policy returns, although not
+with the same complexity as for a fully associative cache. A W-way cache can keep
+any W contiguous sequences of at most N cache lines in the cache at the same time,
+provided the replacement policy does the right thing. Unfortunately, there is
+often an element of randomness involved, so there will in general be some number of
+“noise” misses before the cache contents settle.</p>
+</section>
+<section id="multi-level-caches">
+<h3>Multi level caches<a class="headerlink" href="#multi-level-caches" title="Permalink to this heading"></a></h3>
+<p>On a machine with caches, a memory reference first checks the highest level (<em>L1</em>)
+cache. If the location in question is present in the L1 cache, the memory reference
+is an (L1) <em>hit</em> and is satisfied by the cache. Otherwise it is an (L1) <em>miss</em> and
+the next level in the memory hierarchy is consulted. Note that the L1 cache is the
+smallest and fastest cache; the next level is bigger so the location in question may
+very well be present there. If the access misses in every level, main memory is used.</p>
+<div class="admonition-the-core-i7-8550u-cache-hierarchy admonition">
+<p class="admonition-title">The Core i7 8550U cache hierarchy</p>
+<p>Foo</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Level</p></th>
+<th class="head"><p>Instruction</p></th>
+<th class="head"><p>Data</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>32KB</p></td>
+<td><p>32KB</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td colspan="2"><p>256KB</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td colspan="2"><p>8MB</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>After a miss, the cache line containing the interesting location is moved to the
+highest level cache, <em>replacing</em> a currently present line.</p>
+</section>
+<section id="caches-and-stores">
+<h3>Caches and stores<a class="headerlink" href="#caches-and-stores" title="Permalink to this heading"></a></h3>
+<p>In the discussion above, we have used loads as examples of how caches work, but
+there are also stores to consider. A few decades ago, there were many different
+ways to implement stores in caches, but today most caches use the <em>write back</em>
+policy.</p>
+<p>Under this policy, a store operation works similar to a load: The address to store
+to is looked up in the cache, if it is not found it is fetched from a lower level
+of the memory hierarchy, just as for a load. Once the line containing the store
+address is in the cache, the store is made to the cache. Lower levels are not updated.</p>
+<p>This leads to a situation where the cache may contain different information than the
+memory (or other outer levels of the memory hierarchy), with the version in the cache
+being the canonical one (the version one would see in memory if there were no caches).
+Such a cache line that contains unique information is called a <em>dirty</em> cache line.</p>
+<p>Dirty cache lines must be written back to lower levels in the memory hierarchy when
+they are replaced in the cache. Hence write references to all but the first level
+cache are not generated directly by store instructions but by eviction of dirty lines.
+A read reference, independent of cache level, is typically generated to service a
+load instruction (or uop) that has missed in all the upper levels.</p>
+</section>
+<section id="caches-and-instruction-level-parallelism">
+<h3>Caches and instruction level parallelism<a class="headerlink" href="#caches-and-instruction-level-parallelism" title="Permalink to this heading"></a></h3>
+<p>So far, our discussion of caches has assumed that one access is processed at a time,
+but that is incompatible with the highly parallel execution engine discussed above.
+It would also mean forgoing the opportunity to exploit hardware parallelism in the
+memory hierarchy, which comes in several forms:</p>
+<dl class="simple">
+<dt>Hit under miss</dt><dd><p>The simplest form of parallelism is that between a cache miss, where the missing
+level in the cache just waits for the contents of the requested line, and
+independent hits to other cache lines.</p>
+</dd>
+<dt>Multiple outstanding misses</dt><dd><p>The on-chip memory structures lend themselves well to pipelining, meaning that
+the minimum time between accepting new requests is much smaller than the time
+to service a request. Thus it makes sense to be able to process several misses
+concurrently.</p>
+</dd>
+<dt>Write backs</dt><dd><p>The write backs of dirty, evicted cache lines can also proceed in parallel with
+other operations given sufficient buffering. Care must be taken to avoid reading
+stale data: If a write back has not reached a lower level cache yet, that cache
+does not have the correct contents.</p>
+</dd>
+</dl>
+<p>In many cases, the latency of L1 misses that hit in L2 can be hidden completely
+if enough instruction level parallelism is present. A modern out of order issue
+core like the one sketched above can have an instruction window of over 200
+instructions. Even at a rate of four instructions executed per cycle, this
+corresponds to over 50 cycles of work, quite enough to absorb some 20 cycles
+or so of L2 latency.</p>
+<p>While a purely sequential cache has only hits, which deliver data immediately and
+do not generate a cache line refill, and misses which have the opposite
+characteristics, these parallel caches exhibit a third class of reference: Those
+that touch a line that had a recent miss for which the refill is still outstanding.
+Such a miss does not return data immediately but does not generate a new refill.</p>
+</section>
+<section id="prefetching">
+<h3>Prefetching<a class="headerlink" href="#prefetching" title="Permalink to this heading"></a></h3>
+<p>One way to exploit even more parallelism in the memory hierarchy is prefetching. We
+have seen that the instruction window can often hide a few tens of cycles of
+latency, but main memory latency is typically several hundred cycles. We need to
+start main memory access long before the accessing
+instruction enters the instruction window. Such a read in anticipation of future
+need is called a <em>prefetch</em>.</p>
+<p>A prefetch always consults the memory hierarchy; if the target of the prefetch is
+already in the cache, no refill needs to be generated. Otherwise, the prefetch is
+handled much like an ordinary miss.</p>
+<p>Prefetches can be generated transparently by the hardware or by special prefetch
+instructions. In both cases, prefetching depends on predictable access patterns.
+The simplest of such patterns is sequential access with constant stride. This
+means accesses that walk through the address space with a constant offset:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(a,\ a+s,\ a+2s,\ a+3s, \ldots\)</span></p>
+</div></blockquote>
+<p>Modern hardware prefetchers handle these kinds of patterns very well, so software
+prefetches are only needed/useful in some cases.</p>
+</section>
+</section>
+<section id="virtual-memory">
+<h2>Virtual memory<a class="headerlink" href="#virtual-memory" title="Permalink to this heading"></a></h2>
+<p>Computers generally run many processes at the same time, several of the loaded into
+memory. Moreover, processes are moved in and out of memory when the process
+has something to do or when memory gets scarce.</p>
+<p>It would be almost impossible to have the processes know what part of memory they
+are currently placed in, especially if the code of the process would need to know
+that. Therefore, every process has their own <em>address space</em>. Recall that memory
+is like an array indexed with integer addresses. Under a virtual memory system,
+each process has its own array, and the same <em>virtual</em> address, which is what the
+processes use, in different address spaces corresponds to different physical memory
+addresses.</p>
+<p>To accomplish this, memory space is divided into <em>pages</em> which play a role that is
+similar to that of a cache line. On the x86, pages are 4096 bytes in size. The
+division of the address space into pages also divides addresses into a page number
+and a page offset:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Virtual page number (52 bits)</p></td>
+<td><p>Page offset (12 bits)</p></td>
+</tr>
+</tbody>
+</table>
+<p>On every memory access, the virtual page number is translated into a physical page
+number often called the <em>page frame number</em>. If the macine actually has 16GB of
+memory, the translated address looks like this:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Page frame number (22 bits)</p></td>
+<td><p>Page offset (12 bits)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Note that the page offset is unaffected by the translation.</p>
+<p>The virtual page number is translated to a page frame number using a set of tables
+called the <em>page tables</em>. On some architectures like the x86, the hardware makes
+which is often called the <em>page table walk</em>, wheras on other, especially RISC
+machines from the nineties, it is made by software. In either case, it is very
+slow; on the face of it, we have replaced one memory reference by several.</p>
+<p>For this reason, there is of course a cache, called the <em>translation lookaside buffer</em>
+or <em>TLB</em>, for the translation. In fact, a modern processor has a multilevel TLB
+hierarchy. The TLB typically has fewer entries than the ordinary cache has cache lines
+since each entry provides translation information for a page which is much bigger
+than a cache line. For the first level TLB, 64 or so entries is not uncommon and in
+contrast to the case with caches, it may actually be fully associative.</p>
+<p>Virtual memory interacts with the rest of the cache system in interesting ways; do
+the caches work on virtual or physical addresses? The answer is that they work with
+physical addresses because otherwise the caches would need to be flushed when
+the processor switches to run another process for a while.</p>
+<p>In order for the TLB lookup not to slow down L1 cache access, the L1 cache is often
+organized to only use the page offset for indexing. It is not a coincidence that
+the Core i7-8550U has a, 32 KB 8-way set associative L1 cache because this makes
+for using exactly the 12 low order bits of the address as index. Then the TLB
+access is made in parallel with reading the (physical) tags which can then be
+compared to the page frame number of the access.</p>
+<section id="measuring-the-cache">
+<h3>Measuring the cache<a class="headerlink" href="#measuring-the-cache" title="Permalink to this heading"></a></h3>
+<p>To sum up the performance of caches, let us take a look at the cache hierarchy
+of the Core i7-8550U. We have done that using two different cache measurement
+programs.</p>
+<section id="latency-measurements">
+<h4>Latency measurements<a class="headerlink" href="#latency-measurements" title="Permalink to this heading"></a></h4>
+<p>The first of these is designed to do latency measurent, so it is written
+in such a way that every access depends on getting the data from the previous access.
+The inner loop of this test looks as follows:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">traversals</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">blocks</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The code follows a linked list of pointers in order to measure the latency of
+the accesses. The inner loop touches every block of a buffer once. The block
+size is varied from 8 bytes (the size of a pointer) to 64 bytes (the size of a
+cache line). In all cases, the first 8 bytes of a block is the pointer. There
+are <code class="docutils literal notranslate"><span class="pre">blocks</span></code> blocks in the buffer, and in order to get a suitable time for
+measurement, the buffer is traversed <code class="docutils literal notranslate"><span class="pre">traversals</span></code> times.</p>
+<p>There are two experiments made with this code.</p>
+<dl class="simple">
+<dt>Sequential access</dt><dd><p>Here, the (first word in) the first block points at the (first word in) the
+second block which points to the third and so on until the last block which
+points at the first one. This pattern is one which the hardware pre-fetchers
+will understand easily. So even if the processor needs to get the pointer to
+follow, the pre-fetchers have already guessed where the pointer will point.</p>
+</dd>
+<dt>Random access</dt><dd><p>Here, the list has been scrambled. Each block is still visited once, but
+not in an order that the hardware prefetchers understand.</p>
+</dd>
+</dl>
+<p>Here are the results for the latency measurements. The x-axis in these plots
+is the base 2 logarithm of the buffer size in bytes. So the value 13 stands for
+<span class="math notranslate nohighlight">\(2^{13} = 8192\)</span> bytes and the value 26 corresponds to <span class="math notranslate nohighlight">\(2^{26}\)</span> bytes
+which is 64 megabytes. The y-axis is the average time per access in nanoseconds.
+Since the machine ran the tests at about 3.5GHz, this figure should be multiplied
+with 3.5 to get the value in processor cycles.</p>
+<p>We first look at the results for a random traversal:</p>
+<img alt="../_images/cache-lat-rand.png" src="../_images/cache-lat-rand.png" />
+<p>The left part of the plot is not easy to read, so we will zoom in later, but let us
+look at the overall shape. We have a very low latency up to 15 (corresponding to
+the 32KB L1 data cache), then another plateau from 64KB to 256KB which is the size
+of the L2 cache. The L3 cache yields another relatively flat region between 512KB
+and 4MB. The L3 cache is 8MB, but it is shared between all cores and also contains
+code, so when we can not use the whole size without starting to miss. As the buffer
+size increases, we approach 100ns (350 cycles) of access latency.</p>
+<p>Now, let us look at the sequential access pattern, in the same scale.</p>
+<img alt="../_images/cache-lat-seq.png" src="../_images/cache-lat-seq.png" />
+<p>That was quite a difference! The latency in under ten nanoseconds even when going
+all the way to memory. Therse results are both a tribute to the pre-fetchers, but
+also to a very reasonable memory bandwidth. When we use a single pointer in each
+cache line (block size 64B), we read each pointer in about 7.1 nanoseconds. For
+this read the memory needs to transfer a cache line, so we have a read bandwidth
+of about 9GB/s.</p>
+<p>We will now zoom in on the left part of the plot, where data fits in the L1 or L2
+caches.</p>
+<img alt="../_images/cache-lat-rand-small.png" src="../_images/cache-lat-rand-small.png" />
+<p>For the random access, we see that regardless of how many pointers per cache line
+we use, the access time is about 1.16 nanoseconds, which is the documented 4 cycle
+hit latency of the L1 data cache, as long as we use at most 32KB of buffer size.</p>
+<p>When we go from 32KB to 256KB we see that the different numbers of pointers per
+cacheline start to matter. As we increase the buffer size, the access time increases
+to just above 4 nanoseconds (8 pointers per cache line) to just below 5 nanoseconds
+(1 pointer per cache line).</p>
+<p>What happens is that we still get some hits in the L1 data cache, especially for
+the 64KB buffer size where we get almost 50% hits for the 8 pointers per cache line
+case. To understand why, consider the situation somewhere in a traversal. Since
+we have a buffer that is twice the size of the cache, the cache will contain half
+of the cache lines in the buffer. We will now make a random reference somewhere
+in the buffer. It is not surprising that we have a good chance of hitting one of the
+blocks that are present in the cache. The chance is slightly less than 50% since
+the blocks that are present have recently had one of their eight pointers read, and
+these will certainly not occur again until the next traversal. Thus pointers that
+fall outside the present blocks are a little more likely.</p>
+<p>Let us now look at the sequential access pattern.</p>
+<img alt="../_images/cache-lat-seq-small.png" src="../_images/cache-lat-seq-small.png" />
+<p>Here we see that with 4 or 8 pointers per cache line, the pre-fetchers feed data
+quickly enough that it is always ready when needed. However, with the larger
+strides, it appears that the pre-fetchers, while useful in mitigating the latency,
+do not manage to fully hide it.</p>
+</section>
+<section id="streaming-reads">
+<h4>Streaming reads<a class="headerlink" href="#streaming-reads" title="Permalink to this heading"></a></h4>
+<p>The other cache measurement is more oriented towards read bandwidth. Here we
+want to see how much data we can get into the core under different scenarios, so
+we use explicit SIMD programming to generate 32-byte reads which we xor together
+to avoid the compiler eliminating the whole loop. In fact, we edited the assembly
+to get a somewhat smoother code.</p>
+<p>We have run with different strides, but since the access size is 32 bytes rather
+than 8, a stride of 1 has two accesses per cache line, stride 2 has one, stride 4
+touches every other cache line an stride 8 reads one out of four.</p>
+<img alt="../_images/cache-stream.png" src="../_images/cache-stream.png" />
+<p>We see that the overall picture is somewhat similar to the case with dependent
+instructions; we have the lowest time per access when the buffer fits in the L1 data
+cache, a somewhat higher when when we read from the L2 cache, higher still with the
+L3 and highest when reading from memory.</p>
+<p>However, because the loads here are
+independent of each other, we have much shorter average times. When reading from
+the L1 data cache we have a read time of about 0.17 nanoseconds, which translates
+to just under 0.6 cycles. Theoretically, we should be able to do 0.5 cycles (two
+loads per cycle) but a small amount of time gets lost.</p>
+<p>The increase in time is also not as dramatic when we go to larger buffer sizes,
+so the outer levels in the memory hierarchy lose bandwidth slower than the gain
+latency. this indicate that they support more and more concurrent
+references.</p>
+<p>Larger strides give longer times per access as soon as we do not just read from
+the L1. It is no surprise that stride one should be better than stride two since
+the same amount of data is read for one two references with stride one and for one
+reference for stride two. However, it is less clear what causes the difference
+between stride two and stride four and between stride four and stride eight.</p>
+<img alt="../_images/cache-stream-small.png" src="../_images/cache-stream-small.png" />
+<p>We get the following table for achievable bancdwidth for different levels in the
+memory hierarchy:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Level</p></th>
+<th class="head"><p>Buffer size (KB)</p></th>
+<th class="head"><p>Access time (ns)</p></th>
+<th class="head"><p>Bandwidth (GB/s)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>L1</p></td>
+<td><p>32</p></td>
+<td><p>0.17</p></td>
+<td><p>192</p></td>
+</tr>
+<tr class="row-odd"><td><p>L2</p></td>
+<td><p>128</p></td>
+<td><p>0.32</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p>L3</p></td>
+<td><p>4096</p></td>
+<td><p>0.65</p></td>
+<td><p>49</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mem</p></td>
+<td><p>65536</p></td>
+<td><p>3.11</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="programming-for-the-cache">
+<h3>Programming for the cache<a class="headerlink" href="#programming-for-the-cache" title="Permalink to this heading"></a></h3>
+<p>While neither programmer nor compiler have to know about caches in order to produce
+correct code, performance can be drastically improved by taking the memory
+hierarchy into account. Recall that caches are efficient because of the locality
+of most programs, and the more locality the program has, the better the
+caches work. Here we will discuss how to write code with good locality.</p>
+</section>
+<section id="blocking">
+<h3>Blocking<a class="headerlink" href="#blocking" title="Permalink to this heading"></a></h3>
+<p>In general, locality is a function of which memory locations the program accesses
+as well as in what order the accesses are performed. If all of the locations
+fit in the cache at the same time, only the first reference to each referenced
+cache line will be a miss. If not everything fits at the same time, the ordering
+matters.</p>
+<p>Imagine that we have a cache with a single cache line and a program that references
+two different memory locations A and B falling in different cache lines. If the
+accesses are in the order A, B, A, B, A, B, … every access will miss, while if
+the order is A, A, A, …, B, B, B, … then there will only be two misses.</p>
+<p>This example may look silly, but since a cache line contains several memory locations
+the A:s might actually be different memory locations falling into the same cache
+line (and similarly for the B:s), a much more common occurrence.</p>
+<p>Transforming programs to increase temporal locality is often referred to as
+<em>blocking</em> since one can often view it as traversing a “block” of memory at
+a time. A program can benefit from blocking if the following conditions hold:</p>
+<ol class="arabic simple">
+<li><p>The program reuses memory, ie there are more memory references than unique
+memory locations referenced.</p></li>
+<li><p>The reuse is too scattered, so that between two memory references to the
+same location, too many other unique memory locations are referenced.</p></li>
+</ol>
+<p>The number of unique memory locations accessed between two accesses to the same
+location is called <em>reuse distance</em>. Blocking is a transformation that reorders
+memory references to reduce the average reuse distance so that data tends to fit
+some level in the memory hierarchy. The level targeted can be explicitly managed
+like registers or local memory or implicitly managed like a cache. Note that
+blocking targets data references, not instruction references.</p>
+<p>Typically, a program can be blocked several times for different levels in the
+memory hierarchy. So we can have a program that is blocked for registers as well
+as for the L1 cache and L3 cache, for instance.</p>
+<div class="admonition-example-blocking-unique1 admonition">
+<p class="admonition-title">Example: Blocking unique1</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">unique1()</span></code> function satisfies our two conditions for being eligible
+for blocking, at least if the array is larger than the largest cache.
+Admittedly, in this case the <span class="math notranslate nohighlight">\(O(N^2)\)</span> algorithm will be horribly slow
+compared to an algorithm based on sorting or hash tables, but it can still
+be used to illustrate the technique.</p>
+<p>Here is the original version of <code class="docutils literal notranslate"><span class="pre">unique1()</span></code> again, for reference:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique1</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>As we saw above, the <code class="docutils literal notranslate"><span class="pre">a[i]</span></code> reference is reused on every iteration
+and its reuse distance is 1 since only the reference to <code class="docutils literal notranslate"><span class="pre">a[j]</span></code> happens
+between the reuses.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">a[j]</span></code> reference has a reuse distance of <code class="docutils literal notranslate"><span class="pre">n</span></code>, however,
+which we assume to be too large for our cache.</p></li>
+</ul>
+<p>One way to view the problem, then, is that the inner <code class="docutils literal notranslate"><span class="pre">j</span></code> loop has too many
+iterations between iterations of the outer <code class="docutils literal notranslate"><span class="pre">i</span></code> loop. This leads to the
+idea that we can split the <code class="docutils literal notranslate"><span class="pre">n</span></code> iterations of the <code class="docutils literal notranslate"><span class="pre">j</span></code> loop that are needed
+for each iteration of the <code class="docutils literal notranslate"><span class="pre">i</span></code> loop into smaller chunks of size <code class="docutils literal notranslate"><span class="pre">B</span></code>
+so that for each chunk we go through all <code class="docutils literal notranslate"><span class="pre">n</span></code> iterations of the outer
+loop but only <code class="docutils literal notranslate"><span class="pre">B</span></code> iterations of the inner loop. Here is the resulting code:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique1</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jj</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">jj</span><span class="o">+</span><span class="n">B</span><span class="p">);</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">min(n,</span> <span class="pre">jj+b)</span></code> part handles the case when <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a
+multiple of <code class="docutils literal notranslate"><span class="pre">B</span></code>.</p>
+<p>We have now accomplished a reuse distance of <code class="docutils literal notranslate"><span class="pre">B</span></code> for the <code class="docutils literal notranslate"><span class="pre">a[j]</span></code>
+reference which means that most of these will hit in the cache. It is only
+when <code class="docutils literal notranslate"><span class="pre">n</span></code> is 0 that we will get misses as we load a new chunk into the
+cache.</p>
+<p>This transformation can also be made for <code class="docutils literal notranslate"><span class="pre">unique2()</span></code> but it is somewhat
+more complicated as the trip count of the inner loop depends on the outer
+loop index variable (<code class="docutils literal notranslate"><span class="pre">i</span></code>).</p>
+<p>Now that we have blocked <code class="docutils literal notranslate"><span class="pre">unique1()</span></code> for the cache, let us block it for
+registers as well. We do this since memory references are always more expensive
+than register accesses, even if they hit in the cache.</p>
+<p>For instance, the
+Core i7-8550U processor can do two memory references per cycle (if they hit
+in the L1 data cache) but since it can execute up to four instructions per
+cycle and an instruction can have as many as three source operands and one
+destination operand, that amounts to 16 register accesses per cycle. Also,
+register access adds no latency to the operation wheras even an L1 hit
+has a four cycle latency.</p>
+<p>First, we make the fact that the <code class="docutils literal notranslate"><span class="pre">a[i]</span></code> reference can be replaced by
+reading a register explicit in the code by introducing a local variable:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique1</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">a0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jj</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">jj</span><span class="o">+</span><span class="n">B</span><span class="p">);</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this case, we will think about blocking in a slightly different way.
+When we blocked for the cache, we started from the idea of reducing the
+trip count of the innermost loop to decrease the reuse distance. In this
+case we will start from a desire to reuse the <code class="docutils literal notranslate"><span class="pre">a[j]</span></code> memory access for
+more comparisons. The way to do this is to use multiple values of <code class="docutils literal notranslate"><span class="pre">i</span></code>
+at a time:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique1</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">jj</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">a0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">a1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">      </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jj</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">jj</span><span class="o">+</span><span class="n">B</span><span class="p">);</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">aj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="w">   </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">aj</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">aj</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We have also made the reuse of the <code class="docutils literal notranslate"><span class="pre">a[j]</span></code> access explicit by introducing the
+local variable <code class="docutils literal notranslate"><span class="pre">aj</span></code>. We still have one memory access in the innermost loop,
+but since we increment <code class="docutils literal notranslate"><span class="pre">i</span></code> by 2 on each iteration of the
+<code class="docutils literal notranslate"><span class="pre">i</span></code> loop, we will have half as many iterations of that loop and thus half
+as many iterations of the innermost loop in total.</p>
+</div>
+</section>
+<section id="programming-for-prefetch">
+<h3>Programming for prefetch<a class="headerlink" href="#programming-for-prefetch" title="Permalink to this heading"></a></h3>
+<p>There are a few things to think about when it comes to programming for prefetching.</p>
+<ul>
+<li><p>Prefetches need to be “just-in-time”. If they are too early, they risk knocking
+useful data out of the cache, and if they are too late, they do not hide all
+of the latency. Typically, each iteration prefetches for a later one. The optimal
+<em>prefetch distance</em> depends on the amount ow work in each iteration and the latency
+of the memory where the data is expected to be found.</p></li>
+<li><p>Long sequences are most efficient since the prefetching is unlikely to be
+effective in the beginning of the sequence. For the hardware mechanism, it needs
+to observe a few misses to learn the stride and find a suitable prefetch distance.
+For the software approach, since each iteration typically prefetches for a later
+one, nobody prefetches for the first few iterations. Similarly, there will
+typically be useless prefetches generated from the last few iterations.</p></li>
+<li><p>The software prefetch instructions are not free: There are address calculations
+as well as the cache access (so in terms of throughput, a prefetch instruction
+costs like a load). Typically, a machine might support a certain number of
+outstanding prefetch instructions and simply throw away the excess.</p>
+<p>Hence it is important to mix them with other instructions and also not generate
+several prefetches for the same cache line, something that might require loop
+unrolling.</p>
+</li>
+</ul>
+<div class="admonition-how-do-i-prefetch-in-practice admonition">
+<p class="admonition-title">How do I prefetch in practice?</p>
+<p>There are several ways on how to make use of the prefetching, some that uses the built-in
+processor intrisics or with built-in functions from the compilers. A textbook example of prefetching is doing a sum
+of certain elements in an array. Here is the code without any prefetching:</p>
+<p>In this case, the stride (<code class="docutils literal notranslate"><span class="pre">STEP</span></code>) should be 64 bytes (i.e., the size of our cache line), and our array has a reasonable large <code class="docutils literal notranslate"><span class="pre">size</span></code>.
+Given that <code class="docutils literal notranslate"><span class="pre">sizeof(int)</span></code> will likely return 4 bytes, we will have a sum of <code class="docutils literal notranslate"><span class="pre">arr[0]</span> <span class="pre">+</span> <span class="pre">arr[16]</span> <span class="pre">+</span> <span class="pre">arr[32]</span> <span class="pre">+</span> <span class="pre">arr[48]...</span></code>, and so on.</p>
+<p>We can start implementing prefetching by using the built-in function <a href="#id1"><span class="problematic" id="id2">``</span></a>_mm_prefetch``in Intel/AMD processors:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">double</span><span class="w"> </span><span class="nf">sum_with_prefetch</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">arr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">STEP</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Prefetch next cache line before we need it</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">32</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// Prefetch 32 elements ahead</span>
+<span class="w">                </span><span class="n">_mm_prefetch</span><span class="p">(</span><span class="o">&amp;</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">32</span><span class="p">],</span><span class="w"> </span><span class="n">_MM_HINT_T0</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>One need to also include the <code class="docutils literal notranslate"><span class="pre">xmmintrin.h</span></code> header for the code to work, and this instruction is specific to x86/x86_64 processors with
+Streaming SIMD Extensions (SSE) support (i.e., all modern Intel/AMD processors). This would not work in an ARM or
+RISC-V processors, for example. An alternative (and similar effect in this case) is to use the function <code class="docutils literal notranslate"><span class="pre">__builtin_prefetch(&amp;arr[i</span> <span class="pre">+</span> <span class="pre">32],</span> <span class="pre">0,</span> <span class="pre">3);</span></code>,
+which is compiler-specific and will generate the code depending on the detected platform. Both functions come with parameters
+that also establishes what the prefetcher is supposed to do.</p>
+<p>In the code above, <code class="docutils literal notranslate"><span class="pre">_MM_HINT_T0</span></code> prefetches the targeted address into the L1 cache (highest temporal locality),
+which also makes it available in L2/L3 as part of the cache hierarchy. Here, when processing <code class="docutils literal notranslate"><span class="pre">arr[i]</span></code>, the code prefetches <code class="docutils literal notranslate"><span class="pre">arr[i</span> <span class="pre">+</span> <span class="pre">32]</span></code>
+(32 integers, or 128 bytes), ahead of the current position. This is two cache lines ahead, which helps hide main memory latency by
+ensuring that the data is already in cache by the time it is accessed in future iterations.</p>
+<p>The results are tangible especially for large sizes of the array:</p>
+<figure class="align-default">
+<img alt="../_images/with_vs_without_prefetch.png" src="../_images/with_vs_without_prefetch.png" />
+</figure>
+<p>In other problems, the exact offset to prefetch depends on memory latency, CPU speed, and stride size, and should be tuned and benchmarked for best results.</p>
+</div>
+</section>
+</section>
+<section id="further-reads">
+<h2>Further reads<a class="headerlink" href="#further-reads" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>David A. Patterson, John L. Hennessy. “Computer Organization and Design (RISC-V Edition)”. MK Publishers. 2021.</p></li>
+<li><p>Christos Kozyrakis, John L. Hennessy and David A. Patterson. “Computer Architecture: A Quantitative Approach”. MK Publishers. 2025.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../compilers/" class="btn btn-neutral float-left" title="Compilers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tuning/" class="btn btn-neutral float-right" title="Tuning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

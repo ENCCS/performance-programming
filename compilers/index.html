@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compilers &mdash; Performance Engineering  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_lesson.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/term_role_formatting.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/overrides.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Architecture" href="../architecture/" />
+    <link rel="prev" title="Algorithms" href="../algorithms/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            Performance Engineering
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Before The Lesson</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Compilers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lowering">Lowering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#arrays">Arrays</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#high-level-optimization">High level optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#constant-folding">Constant folding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#copy-propagation">Copy propagation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dead-code-elimination">Dead code elimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-subexpression-elimination">Common subexpression elimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#loop-invariant-removal">Loop invariant removal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#strength-reduction">Strength reduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#induction-variable-elimination">Induction variable elimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exit-controlled-loops">Exit controlled loops</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unreachable-code-elimination">Unreachable code elimination</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inlining">Inlining</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#further-reads">Further reads</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tuning/">Tuning</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Performance Engineering</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Compilers</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/content/blob/main/content/compilers.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="compilers">
+<h1>Compilers<a class="headerlink" href="#compilers" title="Permalink to this heading"></a></h1>
+<p>A compiler is a program that takes a program in a high level language such as C,
+Fortran, or Haskell, and translates it to a lower level target language. In most
+cases, the target language is some form of <em>assembly language</em>; a textual
+representation of the machine code of some family of computers. Meanwhile,
+interpreted languages (e.g. Python, JavaScript) have their code translated to
+machine code <em>during</em> runtime.</p>
+<p>Compilation generally proceeds in a number of steps and even though details vary,
+the general sequence is as follows:</p>
+<ol class="arabic">
+<li><p>Lexical analysis and parsing. The characters in the input file are first
+grouped into <em>lexical tokens</em> which are the word sized units of the language.
+Examples include numbers (integral and fractional), identifiers such as variable
+names and special symbols like “+” or (in C) “{“.</p>
+<p>Parsing groups these further into “sentences” in accordance with the grammar
+of the language. The result of parsing is often called an <em>abstract syntax tree</em>
+and it is a data structure that allows the rest of the compiler easy access to
+the structure of the program. It answers questions like “what is the first
+statement in this function” or “what is the condition part of this if-statement”.</p>
+</li>
+<li><p>Semantic analysis. Here we find out whether different pieces of the program fit
+together, for instance that all variables are declared before they are used (if
+the language mandates that) and that the declarations fit with their use so
+that a floating point number is not used as a pointer.</p></li>
+<li><p>High level optimization. In this phase, the compiler tries to rewrite the
+program to a more efficient one. There are many such optimizations and this
+is a major focus of this part of the performance engineering workshop.</p>
+<p>In general, this part consists of analysis steps, that establish whether a
+certain change to the code is legal or not, transformation steps that change
+the program, and translation (often called <em>lowering</em>) steps that translates
+from one representation of the program to another.</p>
+</li>
+<li><p>Code generation. Here a final translation is made to a representation that is
+close to the target machine. While the previous representations are fairly
+generic and look the same whether we are compiling for an ARM or (some version
+of) an x86, here we tackle the details of the machine, trying to exploit its
+stregths and work around its weaknesses.</p></li>
+<li><p>Low level optimization. Here, we try to improve the machine dependent aspects of
+the code, perhaps applying transformations that would not make sense on a
+different machine.</p></li>
+</ol>
+<p>Not surprisingly, this is a simplified account, although the first two steps are
+quite accurate. One particular complication is that machine dependencies seep
+upwards to earlier steps. Not that the high level optimizer necessarily contains
+code specialized for a particular target, but it may consult tables giving overall
+information about a machine that can guide the optimizer in whether or how to
+apply certain optimizations.</p>
+<p>Conversely, the last steps may run exactly the same code for an ARM and an x86 but
+use different machine description tables.</p>
+<section id="lowering">
+<h2>Lowering<a class="headerlink" href="#lowering" title="Permalink to this heading"></a></h2>
+<p>Translation from one intermediate representation (IR) to the next one is often
+referred to as <em>lowering</em> since each IR has a lower level of abstraction than
+the previous one. Here we will discuss the lowering of a few high level language
+constructs.</p>
+<section id="arrays">
+<h3>Arrays<a class="headerlink" href="#arrays" title="Permalink to this heading"></a></h3>
+<p>A computer memory is a linear sequence of memory locations, each with its own
+address. Memory is in this sense similar to an array, and it is straight forward
+to implement a one dimensional array as a block of memory large enough to contain
+all of the elements of the array. In C, the first element has index 0, whereas in
+Fortran, the first element has index 1.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Array layout (C style)</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Index</p></th>
+<th class="head"><p>Address</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p><span class="math notranslate nohighlight">\(B\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p><span class="math notranslate nohighlight">\(B + E\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(B + 2E\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(N-1\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(B + (N-1)E\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Array layout (Fortran style)</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Index</p></th>
+<th class="head"><p>Address</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p><span class="math notranslate nohighlight">\(B\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p><span class="math notranslate nohighlight">\(B + E\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><span class="math notranslate nohighlight">\(B + 2E\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(N\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(B + (N-1)E\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here the array starts at address <span class="math notranslate nohighlight">\(B\)</span> and each element is <span class="math notranslate nohighlight">\(E\)</span> bytes
+in size (if, as is the case for most machines today, each memory adress corresponds
+to one byte). With this layout, it is easy to figure out where element <span class="math notranslate nohighlight">\(i\)</span> is
+stored; we can find it at address <span class="math notranslate nohighlight">\(B+iE\)</span>.</p>
+<div class="admonition-exercise exercise important admonition" id="exercise-0">
+<p class="admonition-title">Exercise</p>
+<p>Where do we find the element with index <span class="math notranslate nohighlight">\(i\)</span> in a one dimensional Fortran
+array stored in memory at address <span class="math notranslate nohighlight">\(B\)</span>?</p>
+</div>
+<div class="admonition-solution solution important dropdown admonition" id="solution-0">
+<p class="admonition-title">Solution</p>
+<p>Fortran uses 1-based indexing, so the first element has index one. Thus the
+correct expression is <span class="math notranslate nohighlight">\(B + (i-1)E\)</span>.</p>
+</div>
+<p>We can typically keep track of the array in memory by keeping track of where it
+starts. The size of each element depends on the element type of the array, which
+is statically known.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Something is <em>statically known</em> if the compiler knows it: There is no
+need to run the program to figure it out. In languages such as C and Fortran
+that are <em>statically typed</em>, types are always statically known.</p>
+</div>
+<p>For multidimensional arrays, things are somewhat trickier. In order to be able
+to find elements efficiently based on their indices, the layout must be regular.
+The two most common layouts are <em>row major</em> and <em>column major</em> and, as luck would
+have it, C and Fortran are different in this respect. Well, Fortran is different.
+Almost all other languages feature row major layout like C. Here is what the
+two layouts look like:</p>
+<figure class="align-default" id="id3">
+<img alt="../_images/matrix-layout.png" src="../_images/matrix-layout.png" />
+<figcaption>
+<p><span class="caption-text">Multidimensional arrays: row major vs column major layout</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>For the C layout, we find element <span class="math notranslate nohighlight">\((i,j)\)</span> of an array with starting address
+<span class="math notranslate nohighlight">\(B\)</span> at <span class="math notranslate nohighlight">\(B + (iC + j)E\)</span> where <span class="math notranslate nohighlight">\(C\)</span> is the row length (number of
+columns) and <span class="math notranslate nohighlight">\(E\)</span> as usual is the element size.</p>
+<div class="admonition-exercise exercise important admonition" id="exercise-1">
+<p class="admonition-title">Exercise</p>
+<p>Where do we find the element with index <span class="math notranslate nohighlight">\((i,j)\)</span> in a two dimensional Fortran
+array stored in memory at address <span class="math notranslate nohighlight">\(B\)</span>?</p>
+</div>
+<div class="admonition-solution solution important dropdown admonition" id="solution-1">
+<p class="admonition-title">Solution</p>
+<p>We have two differences from C: The 1-based indexing and the column major
+layout. Taking both into account we find our element at
+<span class="math notranslate nohighlight">\(B + ((i-1) + (j-1)R)E\)</span> where <span class="math notranslate nohighlight">\(R\)</span> is the column length (number
+of rows) and <span class="math notranslate nohighlight">\(E\)</span> is the element size.</p>
+</div>
+<p>Now, for the one-dimensional case we only needed the base address and the element
+size, but now we also need either the row (for a row major layout) or column
+(for a column major) length. The latter is not necessarily statically known; it
+will in general depend on input data. And when we write library code, it is not
+acceptable to have the library routine work with a single size only.</p>
+<p>In Fortran, we can tell the compiler the size of the array in all of its dimensions.
+That size can be a not statically known expression, for instance a function
+argument. In C we are not so lucky; we only have multi dimensional arrays with
+static row length.</p>
+<p>Fortunately, we can always manufacture our own multidimensional arrays from
+single dimensional ones, but then we will have to write the corresponding
+expression in our programs. We will see quite a lot of that later.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The term “optimization” does not mean the same thing in compiler technology
+as in, well, optimization. In the present context, there are in general no
+well defined objective functions; we want the code to “run faster” on whatever
+machine we have available.</p>
+<p>There is thus also no guarantees of optimality; a compiler only promises to do
+its best. New compiler versions might generate better code. Even where there
+are sub problems that have well defined objectives, nonoptimal heuristics are
+often used to make the compiler run faster.</p>
+</div>
+</section>
+</section>
+<section id="high-level-optimization">
+<h2>High level optimization<a class="headerlink" href="#high-level-optimization" title="Permalink to this heading"></a></h2>
+<p>This includes a lot of different techniques that are roughly concerned with</p>
+<ul class="simple">
+<li><p>not doing things,</p></li>
+<li><p>doing things fewer times, and</p></li>
+<li><p>doing cheaper things.</p></li>
+</ul>
+<p>We will illustrate some of these techniques as rewrites of C code, something that
+is possible since, for being a high level language, C is rather low level. In
+particular, the design of pointers in C allows for considerable freedom in their
+use.</p>
+<div class="admonition-why-is-this-relevant admonition">
+<p class="admonition-title">Why is this relevant?</p>
+<p>Many of the techniques displayed here are performed automatically in compilers.
+For example, GCC has the optimization flags <code class="docutils literal notranslate"><span class="pre">-O0</span></code> (no optimization) to <code class="docutils literal notranslate"><span class="pre">-O3`</span></code>
+(aggressive optimization) that will do everything automatically.</p>
+<p>So, why is this important? There might be many situations where you want to be
+in control of what the compiler is doing, especially in codes that are to be
+deployed in sensitive environments (e.g., production).</p>
+</div>
+<section id="constant-folding">
+<h3>Constant folding<a class="headerlink" href="#constant-folding" title="Permalink to this heading"></a></h3>
+<p>Sometimes code contains constant expressions like <code class="docutils literal notranslate"><span class="pre">16*1024</span></code> which one might
+write because they are more evidently 16K than the more error prone <code class="docutils literal notranslate"><span class="pre">16384</span></code>.
+And do not even think about writing <code class="docutils literal notranslate"><span class="pre">536870912</span></code> rather than <code class="docutils literal notranslate"><span class="pre">512*1024*1024</span></code>.
+Also, it may well be that the source code contained</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="cp">#define K 1024</span>
+<span class="cp">#define M K*K</span>
+</pre></div>
+</div>
+<p>and then we had <code class="docutils literal notranslate"><span class="pre">16*K</span></code> and <code class="docutils literal notranslate"><span class="pre">512*M</span></code> at various places.</p>
+<p>Fortunately, the compiler will evaluate all such expressions at compile time.</p>
+</section>
+<section id="copy-propagation">
+<h3>Copy propagation<a class="headerlink" href="#copy-propagation" title="Permalink to this heading"></a></h3>
+<p>Sometimes, we find statements just doing copies in our code. More often, there are
+previous optimizations that have created these copies, which might enable these
+optimizations to be simpler to implement. So if we have for instance</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>copy propagation will transform this to</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>and since nothing ever happens after a <code class="docutils literal notranslate"><span class="pre">return</span></code>, <em>dead code elimination</em>
+will take care of the now useless copy and give us</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>as expected. Again, we see examples of breaking down optimizations into many
+small steps. The reason is that some other transformation might have created
+a dead copy, so it’s better to remove all of them at one place in the compiler
+rather than having both the copy propagator and other optimizations all worry
+about assignments to dead variables (a variable is <em>dead</em> at a point in the
+program if it will certainly not be read before it is assigned to again).</p>
+<p>Both constant folding and copy propagation are examples of “not doing something”.</p>
+</section>
+<section id="dead-code-elimination">
+<h3>Dead code elimination<a class="headerlink" href="#dead-code-elimination" title="Permalink to this heading"></a></h3>
+<p>This is where code in the program is executed but has no effect at all.</p>
+<p>There are several textbook cases where the compiler will remove code that is not used at all by the software.
+Aside the trivial case described above, an interesting can be on a conditional branch that is always set to false in a less trivial way:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">expensive_check</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">expensive_check</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;This branch is dead.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Done.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this case, if one is using more aggressive optimizations (<code class="docutils literal notranslate"><span class="pre">-O2</span></code> or <code class="docutils literal notranslate"><span class="pre">-O3</span></code> in GCC), the compiler may be able to detect that such pattern will never be executed and instead have as code:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Done.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="common-subexpression-elimination">
+<h3>Common subexpression elimination<a class="headerlink" href="#common-subexpression-elimination" title="Permalink to this heading"></a></h3>
+<p>Sometimes, the same expression occurs twice, as in</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>which can be rewritten to</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">t</span></code> is a new variable with the same type as
+<code class="docutils literal notranslate"><span class="pre">m+1</span></code> (which in this case is the same type as
+<code class="docutils literal notranslate"><span class="pre">m</span></code>). On the other hand, if we have</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">2</span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="o">+</span><span class="mi">3</span><span class="p">;</span>
+<span class="linenos">3</span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>then clearly there are no common subexpressions. The occurrence of <code class="docutils literal notranslate"><span class="pre">m+1</span></code>
+on line 1 does not have the same value as <code class="docutils literal notranslate"><span class="pre">m+1</span></code> on line 3 since the value
+of <code class="docutils literal notranslate"><span class="pre">m</span></code> has potentially changed in between.
+This was a very obvious case, but consider the following:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="w">  </span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">2</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Here it depends on whether <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">==</span> <span class="pre">j</span></code>; in that case the write to
+<code class="docutils literal notranslate"><span class="pre">a[i]</span></code> on line 1 will affect the read of
+<code class="docutils literal notranslate"><span class="pre">a[j]</span></code> on line 2.</p>
+<p>In this case the question hinges on the values of two integer variables while
+in other cases it might be a question of whether two arrays (pointers) are the
+same or not:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">2</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Here, the indices are clearly different, but can the compiler be sure that <code class="docutils literal notranslate"><span class="pre">a</span></code>
+and <code class="docutils literal notranslate"><span class="pre">b</span></code> do not overlap?</p>
+<p>The compiler attempts to answer these questions using <em>alias analysis</em>. The name
+comes from the <em>alias problem</em>: Is <code class="docutils literal notranslate"><span class="pre">a[i+1]</span></code> another name (an alias) for
+the same memory location as <code class="docutils literal notranslate"><span class="pre">b[i]</span></code>?</p>
+<p>Here we got our first example of “doing something fewer times”.</p>
+</section>
+<section id="loop-invariant-removal">
+<h3>Loop invariant removal<a class="headerlink" href="#loop-invariant-removal" title="Permalink to this heading"></a></h3>
+<p>It is a relatively safe bet that loops will iterate; moving a computation outside
+a loop will almost always save work. Here is a small example:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We can clearly do the addition before the loop instead (here we assume that <code class="docutils literal notranslate"><span class="pre">m+1</span></code>
+is an <code class="docutils literal notranslate"><span class="pre">int</span></code>):</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Perhaps not all that impressive, but useful. One particularly rich source of loop
+invariant computations is array index computations. This is especially true of
+index computations for multi dimensional arrays. Consider the following C code
+where the mapping of the two dimensional array to a one dimensional array has been
+made explicit:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We see that the <code class="docutils literal notranslate"><span class="pre">i*n</span></code> expression is invariant in the inner loop, so we can
+move it out:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">a</span><span class="p">[</span><span class="n">t</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, something that is not immediately obvious is that there is a loop invariant
+add involved in the array access, so we can actually rewrite the code to:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>By the rules of pointer arithmetic in C, when a pointer and an integer is added,
+the integer is implicitly multiplied by the size of the kind of thing the pointer
+points at and the type of the result becomes the type of the pointer. So <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">+</span> <span class="pre">t</span></code>
+becomes a pointer to a double, <code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">*</span></code>, that points exactly to where
+<code class="docutils literal notranslate"><span class="pre">a[t]</span></code> is stored in memory.</p>
+</section>
+<section id="strength-reduction">
+<h3>Strength reduction<a class="headerlink" href="#strength-reduction" title="Permalink to this heading"></a></h3>
+<p>Sometimes, it is possible to replace an expensive operation with a cheaper one.
+For instance, multiplication with a power of two, for instance <code class="docutils literal notranslate"><span class="pre">i*16</span></code> can be
+replaced by a shift; <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">&lt;&lt;</span> <span class="pre">4</span></code>. For nonnegative numbers, division by a power
+of two can likewise be replaced by a right shift.</p>
+<p>However, strength reduction is also used in loops where it can be used to target
+the multiplication by the size of the element type part of array access. Taking
+the <code class="docutils literal notranslate"><span class="pre">add</span></code> function from the previous subsection as an example again:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here, we want to avoid the multiplications by <code class="docutils literal notranslate"><span class="pre">sizeof(double)</span></code> implicit in
+the array accesses:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">cc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">bb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="o">*</span><span class="n">cc</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="o">*</span><span class="n">bb</span><span class="p">;</span>
+<span class="w">      </span><span class="n">cc</span><span class="o">++</span><span class="p">;</span>
+<span class="w">      </span><span class="n">bb</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is in fact not the only way to do it. If we for the moment step outside of C
+and write <code class="docutils literal notranslate"><span class="pre">a[[i]]</span></code> to mean an array access <em>without</em> the implicit multiplication
+by the size of the array elements we can write the <code class="docutils literal notranslate"><span class="pre">add</span></code> function (before strength
+reduction) as:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[[</span><span class="n">j</span><span class="o">*</span><span class="mi">8</span><span class="p">]]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[[</span><span class="n">j</span><span class="o">*</span><span class="mi">8</span><span class="p">]];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We can now simply strength reduce the <code class="docutils literal notranslate"><span class="pre">j*8</span></code> expression:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[[</span><span class="n">k</span><span class="p">]]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[[</span><span class="n">k</span><span class="p">]];</span>
+<span class="w">      </span><span class="n">k</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We have replaced the multiplication with an addition (and we also happened to
+do a bit of common subexpression elimination as well).</p>
+<p>These two versions of strength reduction of the <code class="docutils literal notranslate"><span class="pre">add</span></code> function exemplifies
+the point made above that machine dependent considerations enter also in high
+level optimizations. Some architectures, like ARM, have memory reference
+instructions that can update the base register with the sum of the old base
+register and a constant. Thus the first version of the <code class="docutils literal notranslate"><span class="pre">add</span></code> function would
+be best since the two pointer updates would be free.</p>
+<p>If we instead have a target like the x86 where it is cheap, or even free, to
+form a memory address by adding two registers, the second form might be
+preferable (and we will see it later when looking at the code GCC generates for
+matrix multiplication for the x86 target).</p>
+<p>But is it not something we have forgotten? Yes, we only did apply strength
+reduction to the innermost loop. We also have the <code class="docutils literal notranslate"><span class="pre">i*n</span></code> to deal with. Here
+is the final version, geared towards the x86:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">                  </span><span class="c1">// Loop invariant removal and strength reduction of *8</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">[</span><span class="o">+</span><span class="p">]</span><span class="w"> </span><span class="n">u</span><span class="p">;</span><span class="w">           </span><span class="c1">// No implicit multiplication</span>
+<span class="w">    </span><span class="n">u</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[[</span><span class="n">k</span><span class="p">]]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[[</span><span class="n">k</span><span class="p">]];</span>
+<span class="w">      </span><span class="n">k</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here, we have used <code class="docutils literal notranslate"><span class="pre">[+]</span></code> to indicate a pure add with no implicit multiplication.
+Instead, we do the multiplication outside the loop and also strength reduce it to
+a shift.</p>
+</section>
+<section id="induction-variable-elimination">
+<h3>Induction variable elimination<a class="headerlink" href="#induction-variable-elimination" title="Permalink to this heading"></a></h3>
+<p>Let us have a look at the innermost loop in the latest version of the <code class="docutils literal notranslate"><span class="pre">add</span></code>
+function:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">c</span><span class="p">[[</span><span class="n">k</span><span class="p">]]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[[</span><span class="n">k</span><span class="p">]];</span>
+<span class="w">  </span><span class="n">k</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The induction variable <code class="docutils literal notranslate"><span class="pre">j</span></code> is now used only for the loop control. Could we do
+the loop control in another way? Yes, because the variable <code class="docutils literal notranslate"><span class="pre">k</span></code> moves in lock-step
+with <code class="docutils literal notranslate"><span class="pre">j</span></code>. After all, we introduced it to strength reduce the expression
+<code class="docutils literal notranslate"><span class="pre">j*8</span></code>. Hence we can rewrite the termination test in terms of
+<code class="docutils literal notranslate"><span class="pre">k</span></code> and <code class="docutils literal notranslate"><span class="pre">n*8</span></code> which we conveniently have available as
+<code class="docutils literal notranslate"><span class="pre">s</span></code> (technically, that is a case of common subexpresssion evaluation, I think).</p>
+<p>We can eliminate the outer index variable <code class="docutils literal notranslate"><span class="pre">i</span></code> as well since it is not used for
+anything but loop control either. This leaves us with the following code
+for <code class="docutils literal notranslate"><span class="pre">add</span></code>:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">                  </span><span class="c1">// Loop invariant removal and strength reduction of *8</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="o">*</span><span class="n">m</span><span class="p">;</span><span class="w">                     </span><span class="c1">// u was always i*s, so i &lt; m becomes u &lt; s*m</span>
+<span class="w">  </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">[</span><span class="o">+</span><span class="p">]</span><span class="w"> </span><span class="n">u</span><span class="p">;</span><span class="w">           </span><span class="c1">// No implicit multiplication</span>
+<span class="w">    </span><span class="n">u</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[[</span><span class="n">k</span><span class="p">]]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[[</span><span class="n">k</span><span class="p">]];</span>
+<span class="w">      </span><span class="n">k</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We have now eliminated the induction variables and their updates.</p>
+</section>
+<section id="exit-controlled-loops">
+<h3>Exit controlled loops<a class="headerlink" href="#exit-controlled-loops" title="Permalink to this heading"></a></h3>
+<p>Loops are translated to code containing conditional and unconditional branches,
+which have their equivalent in the C <code class="docutils literal notranslate"><span class="pre">goto</span></code> statement which transfers control
+to a label. <strong>You should never ever write goto statements in your code.</strong> If you
+ever feel tempted, read Edsger Dijkstras famous letter <a class="reference external" href="https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf">“Goto statements considered
+harmful”</a>.</p>
+<p>However, we can use them to illustrate how one would generate code for an entry
+controlled loop such as a <code class="docutils literal notranslate"><span class="pre">while</span></code>:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A straight forward translation of this would be something like:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="nl">top</span><span class="p">:</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="o">!</span><span class="n">c</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="n">bot</span><span class="p">;</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="k">goto</span><span class="w"> </span><span class="n">top</span><span class="p">;</span>
+<span class="nl">bot</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>Contrast this with an exit controlled loop such as a <code class="docutils literal notranslate"><span class="pre">do</span></code> in C:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This will be translated to something like:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="nl">top</span><span class="p">:</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="n">top</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This is clearly better. But of course the two loops have different semantics. We
+have to wrap the <code class="docutils literal notranslate"><span class="pre">do</span></code> loop in an <code class="docutils literal notranslate"><span class="pre">if</span></code> statement got get exactly the same
+behaviour.</p>
+<p>If we apply this to our strength reduced and induction variable eliminated <code class="docutils literal notranslate"><span class="pre">add</span></code>
+function we get:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">                  </span><span class="c1">// Loop invariant removal and strength reduction of *8</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="o">*</span><span class="n">m</span><span class="p">;</span><span class="w">                     </span><span class="c1">// u was always i*s, so i &lt; m becomes u &lt; s*m</span>
+<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">[</span><span class="o">+</span><span class="p">]</span><span class="w"> </span><span class="n">u</span><span class="p">;</span><span class="w">           </span><span class="c1">// No implicit multiplication</span>
+<span class="w">      </span><span class="n">u</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">c</span><span class="p">[[</span><span class="n">k</span><span class="p">]]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[[</span><span class="n">k</span><span class="p">]];</span>
+<span class="w">          </span><span class="n">k</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="p">(</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We have now finally arrived at the basic code structure that we would see
+rendered in assembly as compiler output.</p>
+</section>
+<section id="unreachable-code-elimination">
+<h3>Unreachable code elimination<a class="headerlink" href="#unreachable-code-elimination" title="Permalink to this heading"></a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Unreachable code is never accessed or called during the software’s entire life cycle, while dead code (discussed above)
+is executed but has no effect on the function of a program.</p>
+</div>
+<p>Unreachable code should also be eliminated as
+it serves for nothing other than occupy memory space. A typical example is
+code that is written after a return statement. In the example below, whatever is
+written after <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">c</span></code> will not ever be executed, therefore the two last lines
+may be removed.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">global</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">  </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="n">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="n">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="p">;</span>
+<span class="w">  </span><span class="n">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The code can be enhanced even further via dead code elimination by noticing that only the last value of <code class="docutils literal notranslate"><span class="pre">global</span></code> is
+the only one that matters before the function returns. In similar way, <code class="docutils literal notranslate"><span class="pre">i</span></code> is not used in the
+scope of that function and therefore can be removed as well.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">global</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">global</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>While the examples above are relatively trivial, elimination of unreachable code, especially when automatically done
+by the compiler, can be especially relevant in large code bases where it is not necessarily obvious that the code will not be
+executed due to where it is placed.</p>
+</section>
+<section id="inlining">
+<h3>Inlining<a class="headerlink" href="#inlining" title="Permalink to this heading"></a></h3>
+<p>Another optimization commonly desired is to avoid the overhead of function calls. This overhead is associated to the process of saving
+the caller state (registers, return address), pushing arguments and stacks or into registers, branching to the function address, and then
+returning. Functions that are called with very high-frequency, or ones that perform trivial operations are good candidates to be inlined.</p>
+<p>In practice, what we do is to replace the function code directly into the main code if possible.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">clamp</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">min</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">max</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clamp</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the example above, the function <code class="docutils literal notranslate"><span class="pre">clamp</span></code> is called several times. It is a good candidate for inlining as it is small, simple,
+and the arguments are often constants (i.e., one can fold constants and eliminate unecessary comparisons). Therefore, the function
+<code class="docutils literal notranslate"><span class="pre">process</span></code> may be rewritten as follows.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+<span class="w">        </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>One may tip the compilers by using the <code class="docutils literal notranslate"><span class="pre">inline</span></code> keyword on the function header. It is also possible to optimize even more the
+previous example through the usage of ternary operators and therefore avoid more branching.</p>
+</section>
+</section>
+<section id="further-reads">
+<h2>Further reads<a class="headerlink" href="#further-reads" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Robert Nystrom. “Crafting Interpreters”, 1st Edition. Genever Benning. 2021.</p></li>
+<li><p>Keith Cooper and Linda Torczon. “Engineering a Compiler”, 3rd Edition. MK Publishers. 2025.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../algorithms/" class="btn btn-neutral float-left" title="Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../architecture/" class="btn btn-neutral float-right" title="Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
