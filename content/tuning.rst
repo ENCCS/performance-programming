@@ -15,9 +15,39 @@ advanatges as an example, including:
   convolutions.
 
 - It probably consumes more compute cycles than (almost) any other given that it
-  is what powers large language models such as GPT-4. Transformers, as the underlying
+  is what powers large language models such as GPT-4 or GPT-5. Transformers, as the underlying
   neural network architecture is called, consist almost entirely of matrix
   multiplications.
+
+   .. admonition:: The Roofline model
+
+   There are several ways to measure performance and, in this course, we have mostly used 
+   execution time as a reference. In practice, however, time is not always the best metric for analysis, 
+   as it abstracts away many layers of what is happening during the execution of an algorithm.
+
+   A popular alternative for evaluating how application kernels perform is the Roofline Model. As the name 
+   suggests, it is a performance model that defines two major upper limits (or rooflines) for an application: 
+   memory bandwidth and peak computational performance (operations per second). The idea behind the model is 
+   that the slowest limiting factor, whether it is data transfer or computation throughput, dictates the overall performance. 
+   Therefore, an application can be classified as memory-bound or compute-bound based on where it falls in the model.
+
+   More advanced versions of the Roofline Model also take into account additional factors such as cache hierarchies and SIMD
+   extensions (e.g., Fused Multiply-Add, or FMA). This is, for example, what the Intel Advisor Roofline analysis tool provides: 
+   in the plot below, each dot represents a loop or function from the application, and multiple ceilings are shown. The farther 
+   a kernel is from the corresponding ceiling, the greater the potential for optimization
+
+   .. figure:: intel-roofline.png
+
+      Diagonal lines represent how many bytes of data a given memory subsystem can deliver per second.
+      Horizontal lines represent the number of floating-point operations the hardware can perform in a given time interval.
+      Source: Intel Corporation.
+
+   Among other commonly used tools for performing a roofline model of the hardware, there is the `STREAM benchmark <https://www.cs.virginia.edu/stream/>`_ 
+   and `Likwid <https://github.com/RRZE-HPC/likwid>`_. However, as this course does not focus on performance modeling in depth, the Roofline Model will not be discussed in depth here. 
+   
+   For further details, please refer to the "Further Reads" section of this lesson.
+
+
 
 Matrix-matrix multiplication
 ============================
@@ -98,12 +128,12 @@ the matrix (for square matrices). Does that theory hold in practice as well?
 
 .. solution::
 
-   On a T580 with a Core i7-8550U processor, I get the following:
+   On a T580 with a Core i7-8550U processor, the following results are seen:
    
    .. image:: mm1-times-c.png
       :align: center
       
-   I did the fitting by hand, prioritizing the smaller matrix sizes since 
+   The fitting was done by hand, prioritizing the smaller matrix sizes since 
    the larger sizes likely have longer per-iteration times due to more
    cache misses. The difference is not dramatic, though, as you can see.
 
@@ -158,9 +188,6 @@ This is a good choice if the transformations we intend to do on the program
 for the purpose of tuning do not affect the clock frequency. This may not always
 be true, but in our experience it is close enough for the purpose of gauging the
 room for improvement.
-
-Now, as usual I do not know what kind of machine you, dear student, is running
-your code on (you *are* running code, right?).
 
 .. admonition:: Example
 
@@ -1095,3 +1122,5 @@ Further reads
 ================
 
 - David Spuler. "Efficient Modern C++ Data Structures: Container and Algorithm Optimizations", 1st Edition. Self-published. 2025.
+- Samuel Williams, Andrew Waterman, and David Patterson. "Roofline: An Insightful Visual Performance Model for Multicore Architectures". Communications of the ACM. 52 (4), pages 65–76.  2009.
+- Georg Ofenbeck, Ruedi Steinmann, Victoria Caparros, Daniele G. Spampinato, and Markus Püschel. "Applying the roofline model". IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS). 2014.
