@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture &mdash; LESSON NAME  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Performance Analysis" href="../performance-analysis/" />
+    <link rel="prev" title="Compilers" href="../compilers/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            LESSON NAME
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilers/">Compilers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modern-processors-and-performance-engineering">Modern Processors and  Performance Engineering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-high-level-language-to-machine-code">From High-Level Language to Machine Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machine-code-execution-process">Machine Code Execution Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linking-machine-code-execution-process-with-performance-engineering">Linking Machine Code Execution Process with Performance Engineering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#stored-program-computer-architecture">Stored-program computer architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-purpose-cache-based-microprocessor-architecture">General-purpose cache-based microprocessor architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-hierarchy">Memory Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cache">Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mapping-techniques-between-main-memory-and-cache">Mapping Techniques between Main Memory and Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#multicore-processors">Multicore Processors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance-analysis/">Performance Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tuning/">Tuning</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">LESSON NAME</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/content/blob/main/content/architecture.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading"></a></h1>
+<section id="modern-processors-and-performance-engineering">
+<h2>Modern Processors and  Performance Engineering<a class="headerlink" href="#modern-processors-and-performance-engineering" title="Permalink to this heading"></a></h2>
+<p>Computer architecture and program performance engineering are intrinsically linked. Understanding computer architecture is vital for several reasons:</p>
+<section id="from-high-level-language-to-machine-code">
+<h3>From High-Level Language to Machine Code<a class="headerlink" href="#from-high-level-language-to-machine-code" title="Permalink to this heading"></a></h3>
+<div class="highlight-plaintext notranslate"><div class="highlight"><pre><span></span>+----------------------+  +------------------+  +------------------+  +------------------+
+|                      |  |                  |  |                  |  |                  |
+|   High-Level Code    |  |  Compiler/       |  |  Assembly Code   |  |   Machine Code   |
+| (e.g., C or Python)  |-&gt;|  Interpreter     |-&gt;|  (Human-readable |-&gt;|   (Binary form)  |
+|                      |  |                  |  |  low-level code) |  |                  |
++----------------------+  +------------------+  +------------------+  +------------------+
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The <strong>High-Level Code</strong> is what programmers usually write.</p></li>
+<li><p>A <strong>Compiler or Interpreter</strong> translates this into lower-level representation.</p></li>
+<li><p>The result, <strong>Assembly Code</strong>, is specific to the computer’s architecture.</p></li>
+<li><p>The <strong>Assembler</strong> translates assembly into <strong>Machine Code</strong>.</p></li>
+</ul>
+</section>
+<section id="machine-code-execution-process">
+<h3>Machine Code Execution Process<a class="headerlink" href="#machine-code-execution-process" title="Permalink to this heading"></a></h3>
+<div class="highlight-plaintext notranslate"><div class="highlight"><pre><span></span>+--------------------+  +------------------+  +--------------+  +--------------------+
+|                    |  |                  |  |              |  |                    |
+|  Instruction Fetch |-&gt;| Instruction      |-&gt;| Execution    |-&gt;| Result Storage     |
+|   (from Cache/RAM) |  | Decode           |  | Unit         |  | (to Registers/RAM) |
+|                    |  |                  |  |              |  |                    |
++--------------------+  +------------------+  +--------------+  +--------------------+
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Instruction Fetch</strong>: CPU gets the next instruction.</p></li>
+<li><p><strong>Instruction Decode</strong>: CPU determines the instruction’s meaning.</p></li>
+<li><p><strong>Execution Unit</strong>: Performs the operations.</p></li>
+<li><p><strong>Result Storage</strong>: Saves the output.</p></li>
+</ul>
+</section>
+<section id="linking-machine-code-execution-process-with-performance-engineering">
+<h3>Linking Machine Code Execution Process with Performance Engineering<a class="headerlink" href="#linking-machine-code-execution-process-with-performance-engineering" title="Permalink to this heading"></a></h3>
+<p>The machine code execution process, as illustrated above, showcases the flow of instructions and data within a computer system. Each component, from the hard disk to the CPU registers, operates at different speeds and has varying sizes. The process’s efficiency relies heavily on how these components interact and the path data takes as it moves from one component to the next.</p>
+<p>Performance engineering, in its essence, aims to optimize this flow. Here’s how:</p>
+<ul class="simple">
+<li><p><strong>Efficient Data Retrieval</strong>: Performance engineers strategize on how to minimize slow disk or network accesses. This might involve techniques such as data prefetching, where data is preloaded into faster storage (like RAM) before it’s needed.</p></li>
+<li><p><strong>Memory Management</strong>: They optimize how programs use the main memory, ensuring that frequently accessed data is readily available, reducing the need to fetch it from slower storage components.</p></li>
+<li><p><strong>Cache Optimization</strong>: A deep understanding of cache hierarchies and their behaviors helps in writing programs that can better utilize the cache. This includes optimizing for spatial and temporal locality, ensuring that the CPU has fewer cache misses.</p></li>
+<li><p><strong>Instruction Parallelism</strong>: By knowing how the CPU executes instructions, engineers can write code that takes advantage of parallel execution units, ensuring that the CPU is kept busy and fully utilized.</p></li>
+</ul>
+<p>In a nutshell, to engineer software that delivers optimal performance on a given hardware, one must understand the intricate dance of instructions and data within that hardware. This underlines the fact that computer architecture and program performance engineering are intrinsically linked. A deep understanding of one aids and enhances the practice of the other.</p>
+</section>
+</section>
+<section id="stored-program-computer-architecture">
+<h2>Stored-program computer architecture<a class="headerlink" href="#stored-program-computer-architecture" title="Permalink to this heading"></a></h2>
+<p>The <strong>Stored-Program Computer Architecture</strong>, often referred to as the <em>Von Neumann Architecture</em>, is named after John von Neumann. He’s credited with the concept of storing program instructions in memory alongside the data upon which they operate.
+- <strong>Memory (RAM)</strong>: Holds both the program instructions and data. It allows both read and write operations.</p>
+<ul class="simple">
+<li><p><strong>Control Unit (CU)</strong>: Directs operations throughout the computer, using the program’s instructions retrieved from memory.</p></li>
+<li><p><strong>Arithmetic Logic Unit (ALU)</strong>: Performs all arithmetic and logical operations, like addition, subtraction, and comparisons.</p></li>
+<li><p><strong>Input and Output (I/O) Systems</strong>: Interfaces through which the computer communicates with the outside world, e.g., keyboards, monitors, and disks.</p></li>
+<li><p><strong>Central Processing Unit (CPU)</strong>: Comprises the ALU and CU. It fetches, decodes, and executes instructions.</p></li>
+</ul>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+----------------------------------------------------+
+|                                                    |
+|                        RAM                         |
+|        (stores both data and program code)         |
+|                                                    |
++----------------------------------------------------+
+       ||                         ^     ^
+       || Instructions/Data       |     |
+       vV                         |     |
++------------+     +------+
+| Control    |     | ALU  |
+| Unit (CU)  |&lt;---&gt;|      |
++------------+     +------+
+       ||                 ||
+       ||                 ||
+       vV                 vV
+   +--------+         +-------+
+   | Input  |         |Output |
+   |  I/O   |         |  I/O  |
+   +--------+         +-------+
+</pre></div>
+</div>
+<p>In this representation:</p>
+<ul class="simple">
+<li><p>Arrows represent data and control paths.</p></li>
+<li><p>The CPU fetches instructions from RAM.</p></li>
+<li><p>Based on these instructions, it might fetch or store data in RAM, perform computations in the ALU, or interact with I/O devices.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a highly simplified representation. Modern computers have a much more complex architecture, including features like multiple levels of cache, multiple cores, pipelining, and more.</p>
+</div>
+</section>
+<section id="general-purpose-cache-based-microprocessor-architecture">
+<h2>General-purpose cache-based microprocessor architecture<a class="headerlink" href="#general-purpose-cache-based-microprocessor-architecture" title="Permalink to this heading"></a></h2>
+<p>The Stored-Program Computer Architecture, or Von Neumann Architecture, originally had both program data and instructions stored in a single memory and executed instructions sequentially. Over time, to address performance bottlenecks, the evolution led to the General-purpose Cache-based Microprocessor Architecture. This modern design incorporated faster cache memory to speed up frequent data accesses, separated storage for data and instructions to enhance parallel processing, and introduced more streamlined instruction sets for improved execution efficiency. This transition was all in pursuit of greater computational power and efficiency.</p>
+<p>Main Components of Cache-based Microprocessor Architecture include</p>
+<ul class="simple">
+<li><p><strong>CPU Core</strong>: Contains the Control Unit (CU), Arithmetic Logic Unit (ALU), and often other features like floating-point units.</p></li>
+<li><p><strong>Cache Memory</strong>: Typically organized into multiple levels (L1, L2, and sometimes L3 or even L4). L1 is the smallest but fastest, and is directly connected to the CPU core. Subsequent levels are larger and slower.</p></li>
+<li><p><strong>Main Memory (RAM)</strong>: The primary storage for data and instructions, accessed when data is not found in cache.</p></li>
+<li><p><strong>Memory Controller</strong>: Manages communication between the CPU, cache, and main memory.</p></li>
+<li><p><strong>I/O Controllers</strong>: Manage data communication between the CPU and external devices like storage, network interfaces, and peripheral devices.</p></li>
+</ul>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+-------------------------+
+|        CPU Core         |
+|     +-------+           |
+|     |  ALU  |           |
+|     +-------+           |
+|     +-------+           |
+|     |  CU   |           |
+|     +-------+           |
++-------------------------+
+        ||          ^
+        ||          |
+        vV          |
++------------+      |
+|    L1      |      |
+|   Cache    |------|
++------------+      |
+        ||          |
+        vV          |
++------------+      |
+|    L2      |      |
+|   Cache    |------|
++------------+      |
+        ||          |
+        vV          |
++------------+      |
+|    RAM     |      |
++------------+      |
+        ||          |
+        vV          |
++------------+      |
+| I/O Ctrl   |&lt;-----+
++------------+
+</pre></div>
+</div>
+<p>In this representation:</p>
+<ul class="simple">
+<li><p>Arrows represent data and control paths.</p></li>
+<li><p>The CPU first checks the L1 cache for data. If not found, it checks the L2 cache.</p></li>
+<li><p>If the data isn’t in any cache, the CPU fetches it from RAM.</p></li>
+<li><p>I/O controllers manage the input/output operations with external devices.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This representation is still a simplification. Real-world architectures might have additional complexities such as multiple cores, more cache levels, specialized processing units, and advanced features for power management and security.</p>
+</div>
+<p>As computing tasks grew in complexity and data size, there was a pressing need to accelerate computing performance. Traditional, sequential methods of processing instructions hit limitations due to physical constraints and inefficiencies. The industry sought innovative approaches to improve throughput, reduce latency, and handle parallelism inherent in many computing tasks. This led to the development and adoption of techniques like pipelining, superscalarity, and SIMD to exploit parallelism and enhance the effective processing capacity of CPUs.</p>
+<ul class="simple">
+<li><p><strong>Pipelining</strong>:
+Like an assembly line, it allows different stages of multiple instructions to be processed concurrently, boosting the number of instructions handled per time unit.</p></li>
+<li><p><strong>Superscalarity</strong>:
+Enables a single CPU to execute more than one instruction per clock cycle by dispatching multiple instructions to appropriate execution units. It’s an extension of pipelining, multiplying the work done in a single cycle.</p></li>
+<li><p><strong>Out-of-Order Execution</strong>:
+Traditional processors execute instructions in the order they are received. However, this sequential approach can be inefficient if certain instructions have to wait for data or resources. With out-of-order execution, CPUs are designed to execute available instructions that have their inputs ready, even if they’re not next in sequence. This optimizes the use of CPU resources and boosts overall instruction throughput, even when data for some instructions isn’t immediately available.</p></li>
+<li><p><strong>SIMD (Single Instruction, Multiple Data)</strong>:
+Empowers the CPU to perform the same operation on multiple data elements simultaneously. Ideal for tasks like graphics processing where the same operation is repeated across large datasets.</p></li>
+</ul>
+</section>
+<section id="memory-hierarchy">
+<h2>Memory Hierarchy<a class="headerlink" href="#memory-hierarchy" title="Permalink to this heading"></a></h2>
+<p>Computer systems employ a memory hierarchy to balance between speed and storage capacity. At the top of this hierarchy is the fastest but smallest memory, while at the bottom is the largest but slowest memory.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+--------------------+        (1-3 ns)
+|   Registers        |
++--------------------+
+        ||
++--------------------+        (2-4 ns)
+|   L1 Cache         |
++--------------------+
+        ||
++--------------------+        (3-20 ns)
+|   L2 Cache         |
++--------------------+
+        ||
++--------------------+        (10-30 ns)
+|   L3 Cache         |
++--------------------+
+        ||
++--------------------+        (~100 ns)
+|   Main Memory (RAM)|
++--------------------+
+        ||
++--------------------+        (~10 ms)
+|   Disk Storage     |
++--------------------+
+        ||
++--------------------+        (up to several seconds)
+|   Remote Storage   |
++--------------------+
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The timings provided are approximate and can vary based on the technology and specific configurations used.</p></li>
+<li><p>The access time increases as we move down the hierarchy.</p></li>
+<li><p>The cost per bit generally decreases as we move down the hierarchy.</p></li>
+<li><p>The storage capacity increases as we go down the hierarchy.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The memory hierarchy concept is crucial in computer architecture as it allows systems to have the speed benefits of small, fast memories (like caches) while still benefiting from the large storage capacities of slower memories (like RAM and disk storage).</p>
+</div>
+</section>
+<section id="cache">
+<h2>Cache<a class="headerlink" href="#cache" title="Permalink to this heading"></a></h2>
+<p>Cache is a smaller, faster type of volatile computer memory that provides high-speed data access to the processor and stores frequently used computer programs, applications, and data. Cache provides faster data storage and access by storing instances of programs and data routinely accessed by the processor.</p>
+<p>Cache is a specialized form of volatile computer memory that offers high-speed data access to the processor, enhancing the speed and performance of the computer. By storing instances of frequently accessed programs, applications, and data, cache optimizes the time taken by the processor to retrieve information.</p>
+<p>There are different levels of cache based on proximity to the CPU and size. The L1 Cache, integrated directly on the CPU chip, is checked first and offers the fastest access, albeit in a limited size. L2 Cache is typically also on the CPU, slightly larger than L1, but is slower. Meanwhile, the L3 Cache is larger than both L1 and L2 but is slower. It still offers faster access compared to the main memory. Some advanced CPUs also possess L4 caches.</p>
+<p>Key technical aspects of cache include its size, often ranging from a few kilobytes to several megabytes; the block size, which dictates how cache is divided; and associativity, which establishes the relationship between main memory blocks and cache lines.</p>
+<p>There are various techniques to map data between main memory and cache. Direct Mapped Cache involves a straight correspondence between each block of main memory and a cache line. On the other hand, Fully Associative Cache allows any block of main memory to be loaded into any cache line. Set-Associative Cache is a blend of the two, with cache divided into several sets containing multiple lines.</p>
+<p>Cache performance can be further optimized through specific techniques. The write policy outlines the methodology for updating values between cache and main memory, and the replacement policy offers algorithms, such as LRU and FIFO, to determine which cache block to overwrite when new data is fetched.</p>
+<section id="mapping-techniques-between-main-memory-and-cache">
+<h3>Mapping Techniques between Main Memory and Cache<a class="headerlink" href="#mapping-techniques-between-main-memory-and-cache" title="Permalink to this heading"></a></h3>
+<ul>
+<li><p><strong>Direct Mapped Cache</strong>:
+In this system, each block of the main memory maps to a specific cache line. The decision of which line a block maps to is typically based on the lower bits of the memory address.</p>
+<p><em>Example</em>: Consider a main memory with 16 blocks (numbered 0 to 15) and a cache with 4 lines (numbered 0 to 3). Block 0 of main memory might map to cache line 0, block 1 might map to cache line 1, block 2 to cache line 2, block 3 to cache line 3, and so on. After block 3, the mapping wraps around. Thus, block 4 maps to cache line 0, block 5 maps to cache line 1, and so on.</p>
+<p><em>Diagram</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Main</span> <span class="n">Memory</span>       <span class="n">Cache</span>
+<span class="o">-----------</span>       <span class="o">-----</span>
+<span class="n">Block</span> <span class="mi">0</span>  <span class="o">--&gt;</span>   <span class="n">Line</span> <span class="mi">0</span>
+<span class="n">Block</span> <span class="mi">1</span>  <span class="o">--&gt;</span>   <span class="n">Line</span> <span class="mi">1</span>
+<span class="n">Block</span> <span class="mi">2</span>  <span class="o">--&gt;</span>   <span class="n">Line</span> <span class="mi">2</span>
+<span class="n">Block</span> <span class="mi">3</span>  <span class="o">--&gt;</span>   <span class="n">Line</span> <span class="mi">3</span>
+<span class="n">Block</span> <span class="mi">4</span>  <span class="o">--&gt;</span>   <span class="n">Line</span> <span class="mi">0</span> <span class="p">(</span><span class="n">wrap</span> <span class="n">around</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="n">Block</span> <span class="mi">15</span> <span class="o">--&gt;</span>   <span class="n">Line</span> <span class="mi">3</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Fully Associative Cache</strong>:
+In this type, any block from the main memory can be loaded into any line of the cache.</p>
+<p><em>Example</em>: Block 7 from main memory could reside in cache line 0, or cache line 2, or any other cache line. Similarly, block 11 could reside in any cache line. There’s complete flexibility in terms of mapping.</p>
+<p><em>Diagram</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Main</span> <span class="n">Memory</span>       <span class="n">Cache</span>
+<span class="o">-----------</span>       <span class="o">-----</span>
+<span class="n">Block</span> <span class="mi">7</span>  <span class="o">--&gt;</span>   <span class="n">Any</span> <span class="n">Line</span>
+<span class="n">Block</span> <span class="mi">11</span> <span class="o">--&gt;</span>   <span class="n">Any</span> <span class="n">Line</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Set-Associative Cache</strong>:
+Here, the cache is divided into several sets, and each set contains multiple lines. A block from the main memory can be mapped to any line within a specific set.</p>
+<p><em>Example</em>: Consider a 2-way set-associative cache. This means our cache with 4 lines is divided into 2 sets (set 0 and set 1), each containing 2 lines. Block 0 of main memory could map to either line 0 or line 1 of set 0. Block 2 could map to either line 0 or line 1 of set 1.</p>
+<p><em>Diagram</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Main</span> <span class="n">Memory</span>       <span class="n">Cache</span>
+<span class="o">-----------</span>       <span class="o">-----</span>
+<span class="n">Block</span> <span class="mi">0</span>  <span class="o">--&gt;</span>   <span class="n">Set</span> <span class="mi">0</span> <span class="p">(</span><span class="n">Line</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">Line</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">Block</span> <span class="mi">2</span>  <span class="o">--&gt;</span>   <span class="n">Set</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Line</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">Line</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="multicore-processors">
+<h2>Multicore Processors<a class="headerlink" href="#multicore-processors" title="Permalink to this heading"></a></h2>
+<p>A multicore processor is essentially a single computing component with two or more independent actual processing units (known as “cores”), which are the units that read and execute program instructions. Each core can simultaneously execute its own series of instructions. This architecture is devised to improve performance, energy efficiency, and the computational ability of systems processing parallel workloads.</p>
+<p>Consider a single-core processor as a single worker capable of handling one task at a time. In contrast, a multicore processor, having multiple cores, is like having multiple workers where each worker can independently handle its own task simultaneously. The true benefit arises when tasks can be split and executed concurrently, leading to faster completion times.</p>
+<p>Here’s a simplified representation of a multicore processor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+-----------------------------------------+</span>
+<span class="o">|</span>             <span class="n">Processor</span> <span class="n">Chip</span>              <span class="o">|</span>
+<span class="o">|</span>                                         <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-------+</span>     <span class="o">+-------+</span>    <span class="o">+-------+</span>  <span class="o">|</span>
+<span class="o">|</span>   <span class="o">|</span> <span class="n">Core</span> <span class="mi">1</span><span class="o">|&lt;--&gt;</span> <span class="o">|</span> <span class="n">Core</span> <span class="mi">2</span><span class="o">|&lt;-&gt;</span> <span class="o">|</span> <span class="n">Core</span> <span class="n">N</span><span class="o">|</span>  <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-------+</span>     <span class="o">+-------+</span>    <span class="o">+-------+</span>  <span class="o">|</span>
+<span class="o">|</span>      <span class="o">||</span>            <span class="o">||</span>           <span class="o">||</span>      <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-------+</span>     <span class="o">+-------+</span>    <span class="o">+-------+</span>  <span class="o">|</span>
+<span class="o">|</span>   <span class="o">|</span> <span class="n">L1</span>    <span class="o">|</span>     <span class="o">|</span> <span class="n">L1</span>    <span class="o">|</span>    <span class="o">|</span> <span class="n">L1</span>    <span class="o">|</span>  <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-------+</span>     <span class="o">+-------+</span>    <span class="o">+-------+</span>  <span class="o">|</span>
+<span class="o">|</span>      <span class="o">||</span>            <span class="o">||</span>           <span class="o">||</span>      <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----------------------------+</span>       <span class="o">|</span>
+<span class="o">|</span>   <span class="o">|</span>           <span class="n">L2</span><span class="o">/</span><span class="n">L3</span> <span class="n">Cache</span>       <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----------------------------+</span>       <span class="o">|</span>
+<span class="o">|</span>                  <span class="o">||</span>                      <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----------------------------+</span>       <span class="o">|</span>
+<span class="o">|</span>   <span class="o">|</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="o">&amp;</span> <span class="n">Memory</span> <span class="n">Controllers</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span>   <span class="o">+-----------------------------+</span>       <span class="o">|</span>
+<span class="o">+-----------------------------------------+</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../compilers/" class="btn btn-neutral float-left" title="Compilers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../performance-analysis/" class="btn btn-neutral float-right" title="Performance Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
