@@ -79,7 +79,7 @@ any fixed cost initialization over the entire computation.
 Quadratic algorithms and hash tables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Consider the problem of determining if the elements of an array of interǵers are all unique. Here is a simple
+Consider the problem of determining if the elements of an array of integers are all unique. Here is a simple
 version that compares all pairs of elements:
 
 .. code-block:: C
