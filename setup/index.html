@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup &mdash; Performance Engineering  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_lesson.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/term_role_formatting.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/overrides.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Algorithms" href="../algorithms/" />
+    <link rel="prev" title="Performance Programming" href="../" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            Performance Engineering
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Before The Lesson</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#for-linux-users">For Linux users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for-mac-users">For Mac users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for-windows-users">For Windows users</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilers/">Compilers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tuning/">Tuning</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">Performance Engineering</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Setup</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/content/blob/main/content/setup.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="setup">
+<h1>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h1>
+<p>In order to follow this workshop, you will need personal computer for the exercises.
+This means that you should access to C and Fortran compilers in your computer.</p>
+<p>You can use an HPC cluster if you have access to one, but the installation instructions
+described below cover how to install C and Fortran compilers in your own computer.</p>
+<p>The GCC compiler (GNU Compiler Collection) is a collection of compilers and libraries
+capable of compiling programs written in C, C++, GO, Fortran, and Objective-C programming languages.
+It is distributed under the GNU General Public License.</p>
+<p>The detailed installation procedures in Linux OS, MacOS and Windows OS are listed below.</p>
+<p>Note that it is unlikely that the <code class="docutils literal notranslate"><span class="pre">perf</span></code> utility which is used in the course will
+work correctly under Windows. In that case, you can always use <code class="docutils literal notranslate"><span class="pre">time</span></code> to measure
+execution time, but it will not give data collected by the hardware performance counters.</p>
+<section id="for-linux-users">
+<h2>For Linux users<a class="headerlink" href="#for-linux-users" title="Permalink to this heading"></a></h2>
+<p>Both C and Fortran compilers are usually installed in Linux and Unix OS.
+Just in case there is neither C nor Fortran compilers in your computer,
+you can follow the instructions <a class="reference external" href="https://www.scaler.com/topics/c/install-c-on-linux/">HERE</a> to install the GCC compiler.</p>
+</section>
+<section id="for-mac-users">
+<h2>For Mac users<a class="headerlink" href="#for-mac-users" title="Permalink to this heading"></a></h2>
+<p>The suggestion is to install Homebrew, a package manager, on Mac and, from there, install GCC as it can be seen in this guide <a class="reference external" href="https://fastbitlab.com/microcontroller-embedded-c-lecture-10-installing-compiler-gcc-for-host-mac/">HERE</a>
+and replicated below.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Install Homebrew</dt><dd><ul>
+<li><p>Open the <strong>terminal</strong> on your mac computer</p></li>
+<li><p>Copy/paste and run the command at the <strong>terminal</strong> <code class="docutils literal notranslate"><span class="pre">/bin/bash</span> <span class="pre">-c</span> <span class="pre">&quot;$(curl</span> <span class="pre">-fsSL</span> <span class="pre">https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</span></code></p></li>
+<li><p>Wait for the command to finish. If you are prompted to enter a password, please type your mac user’s login password.</p></li>
+<li><p>Copy/paste and run the command to make brew command available inside the <strong>terminal</strong> <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">'eval</span> <span class="pre">&quot;$(/opt/homebrew/bin/brew</span> <span class="pre">shellenv)&quot;'</span> <span class="pre">&gt;&gt;</span> <span class="pre">~/.zprofile</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>After Homebrew installs, type <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">gcc</span></code> in the <strong>terminal</strong></p></li>
+<li><dl class="simple">
+<dt>Once the installation completes, you can check the installed compilers via the commands</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">gcc</span> <span class="pre">--version</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">gfortran</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition-clang-and-gcc admonition">
+<p class="admonition-title">clang and gcc</p>
+<p>There are a few things you need to consider when using MacOS:</p>
+<ul class="simple">
+<li><p>When checking the version of gcc through the command above, in many cases you might see that it is Apple’s version of clang (another compiler) being used instead. If that happens, check  the``/usr/local/bin`` directory and look for the direct command to start gcc, usually in the syntax of <code class="docutils literal notranslate"><span class="pre">gcc-&lt;version&gt;</span></code>, such as <code class="docutils literal notranslate"><span class="pre">gcc-14</span></code>.</p></li>
+<li><p>We often use <code class="docutils literal notranslate"><span class="pre">time</span> <span class="pre">-p</span></code> to measure performance of certain codes; however, it might be the case that your terminal returns the -p flag as command not found. If that happens, you should run <code class="docutils literal notranslate"><span class="pre">command</span> <span class="pre">time</span> <span class="pre">-p</span> <span class="pre">&lt;executable&gt;</span></code>.</p></li>
+</ul>
+</div>
+</section>
+<section id="for-windows-users">
+<h2>For Windows users<a class="headerlink" href="#for-windows-users" title="Permalink to this heading"></a></h2>
+<p>There are three options to install GCC compilers in your Windows computer.</p>
+<blockquote>
+<div><p>#. The most recommended option is to install and use the Windows Subsystem for Linux, preferably with Debian or Ubuntu distributions.
+The detailed guidelines are <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">HERE</a>.</p>
+<p>#. You can install the <strong>MinGW Utility</strong> in your computer.
+The detailed guidelines are <a class="reference external" href="https://linuxhint.com/install-gcc-windows/">HERE</a>.</p>
+<p>#. You can install <strong>Cygwin</strong>, which gives us a Unix-like environment running on Windows.
+Then follow steps at <a class="reference external" href="https://preshing.com/20141108/how-to-install-the-latest-gcc-on-windows/">HERE</a>
+to install GCC compilers.</p>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../" class="btn btn-neutral float-left" title="Performance Programming" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../algorithms/" class="btn btn-neutral float-right" title="Algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

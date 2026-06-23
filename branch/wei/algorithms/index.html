@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Algorithms &mdash; LESSON NAME  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Compilers" href="../compilers/" />
+    <link rel="prev" title="Setup" href="../setup/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            LESSON NAME
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#complexity">Complexity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-study-are-the-elements-of-an-array-unique">Case study: Are the elements of an array unique?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../compilers/">Compilers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performance-analysis/">Performance Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tuning/">Tuning</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">LESSON NAME</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Algorithms</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/content/blob/main/content/algorithms.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="algorithms">
+<h1>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this heading"></a></h1>
+<p>The first step towards writing efficient code is to start from a good algorithm. It is also where
+the most dramatic performance improvements can be found.</p>
+<p>Sometimes good
+algorithms are available in libraries and the only thing one needs to do is to call them. But when
+you write code to solve a new problem, or an old problem in a new way, you are on your own.</p>
+<p>Hence this chapter of the lesson is about algorithms, or rather about algorithmic patterns.</p>
+<section id="complexity">
+<h2>Complexity<a class="headerlink" href="#complexity" title="Permalink to this heading"></a></h2>
+<p>Algorithms are often categorized by their <em>complexity</em>, meaning their execution time as a function of
+the size of the input. Since the actual running time varies between systems, the execution time we use
+in this context is the number of steps that an idealized (model of a) computer called a Random Access Machine,
+or <em>RAM</em>, would need. Input sizes are measured in different ways for different algorithms.</p>
+<blockquote>
+<div><p>For a naive
+simulation of gravitational attraction between a large number of stars, the size of the problem is typically
+the number of stars. Since every star is attracted by every other star, the work for a single time
+step of the simulation is proportional to the square of the number of stars.</p>
+<p>As an alternative, one could imagine doing the force calculation by dividing space into a number of fixed
+size cells and compute the force on each star by considering the mass of stars in each cell. The cost of
+doing that for one star would be proportional to the number of cells, thus the size and the granularity
+of the simulated space becomes part of the size of the problem for this alternative approach.</p>
+<p>Later, we will encounter the Barnes-Hut algorithm which combines these two approaches in a clever way.</p>
+</div></blockquote>
+<p>Actual computers differ from the RAM and from each other in many details, and these have important
+consequences for performance, as we will see later in this lesson. However, almost always the difference
+can be expressed as a constant multiplicative factor. That is, one machine is about <span class="math notranslate nohighlight">\(X\)</span> times faster than
+another independent of the size of the input.</p>
+<p>Thus, when we discuss the complexity of an algorithm, we are not interested in absolute performance
+but rather in how the execution time changes when the size of the input changes. This is typically expressed using
+the “big O” notation; we write that the naive gravity simulation algorithm above is <span class="math notranslate nohighlight">\(O(n^2)\)</span> to mean that
+for large enough <span class="math notranslate nohighlight">\(n\)</span> there is a constant <span class="math notranslate nohighlight">\(c\)</span> such that the algorithm uses at most <span class="math notranslate nohighlight">\(cn^2\)</span> steps
+on a RAM to solve a problem of size <span class="math notranslate nohighlight">\(n\)</span>. The “large enough” provisio captures the fact that we are interested
+in what happens “in the limit”. Technically, it for instance allows us to amortize
+any fixed cost initialization over the entire computation.</p>
+</section>
+<section id="case-study-are-the-elements-of-an-array-unique">
+<h2>Case study: Are the elements of an array unique?<a class="headerlink" href="#case-study-are-the-elements-of-an-array-unique" title="Permalink to this heading"></a></h2>
+<p>Consider the problem of determining if the elements of an array of interǵers are all unique. Here is a simple
+version that compares all pairs of elements:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique1</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Complexity is quadratic (<span class="math notranslate nohighlight">\(n^2\)</span>) due to the nested loops. Some of the computation is clearly redundant,
+each pair (x,y) of distict indices is checked twice, once when <cite>i==x</cite> and <cite>j==y</cite> and once when <cite>i==y</cite>
+and <cite>j==x</cite>. So the first improvement is to remove this simple redundancy:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here we insist that <cite>i&lt;j</cite> at all times so we check each (x,y) pair only once and also at the same time
+we avoid the test ensuring that <cite>i != j</cite>. Can we do better? Yes, by sorting the array first. Sorting
+can be accomplished in time <span class="math notranslate nohighlight">\(O(n \log(n))\)</span> which is much faster than <span class="math notranslate nohighlight">\(O(n^2)\)</span>. Having sorted the
+array, equal elements are now adjacent.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique3</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">sort</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here we helped ourselves to a function <code class="docutils literal notranslate"><span class="pre">sort()</span></code> that sorts an array of <code class="docutils literal notranslate"><span class="pre">int</span></code>. There are interesting lessons
+to learn from implementing that function, and we will return to these later.</p>
+<p>What is the complexity of <code class="docutils literal notranslate"><span class="pre">unique3()</span></code>? The function first sorts the array, then traverses it linearly in a single
+pass, a process that is clearly <span class="math notranslate nohighlight">\(O(n)\)</span>. If the algorithm used by <code class="docutils literal notranslate"><span class="pre">sort()</span></code> is <span class="math notranslate nohighlight">\(O(n\log(n))\)</span>, this means
+that the entire algorithm is <span class="math notranslate nohighlight">\(O(n\log(n))\)</span> since this is asymptotically greater. There is no constant <span class="math notranslate nohighlight">\(c\)</span>
+such that <span class="math notranslate nohighlight">\(cn &gt; n\log(n)\)</span> for large <span class="math notranslate nohighlight">\(n\)</span>.</p>
+<p>Is there a way to solve this problem even faster? There is at least one variation that is likely to be faster in many
+cases, and that involves using a <em>hash table</em>. This is a data structure that can be used to implement a set with fast
+insert, delete, and membership test (in general, a hash table can implement a finite map from a set of <em>keys</em> to a set of
+arbitrary values).</p>
+<p>The new version iterates over the integers in the array one by one, looks up each one in the hash table and inserts it if
+it was not there.</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">unique4</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">ht_t</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_hash_table</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">member</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">insert</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">delete_hash_table</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A hash table is implemented as an array that is indexed using a hash value computed from the object we want to
+insert or check membership for. The hash value must be a valid index into the table, so if the size of the table is
+<span class="math notranslate nohighlight">\(s\)</span> then the hash value <span class="math notranslate nohighlight">\(v\)</span> must satisfy <span class="math notranslate nohighlight">\(0 \leq v &lt; s\)</span>.</p>
+<p>In general, we compute a hash value in two steps. First we compute an integer <span class="math notranslate nohighlight">\(k\)</span> from the
+object we want to insert. In this example, we already have an integer, so this this
+step becomes trivial. Second, we limit the size by for instance taking the modulus
+with respect to the table size <span class="math notranslate nohighlight">\(s\)</span> of <span class="math notranslate nohighlight">\(k\)</span> to get a valid index.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../setup/" class="btn btn-neutral float-left" title="Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../compilers/" class="btn btn-neutral float-right" title="Compilers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
